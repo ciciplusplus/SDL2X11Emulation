@@ -1,5 +1,5 @@
 #include "X11/Xlib.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "errors.h"
 #include "display.h"
 

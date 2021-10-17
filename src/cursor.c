@@ -1,5 +1,5 @@
 #include "X11/Xlib.h"
-#include "SDL_ttf.h"
+#include <SDL2/SDL_ttf.h>
 #include "errors.h"
 #include "drawing.h"
 #include "colors.h"

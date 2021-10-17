@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(SDL2X11Emulation C)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_C_FLAGS_DEBUG -DDEBUG_SDL2X11_EMULATION)
+
+find_package(SDL2 REQUIRED)
+find_package(SDL_gpu REQUIRED)
+find_package(Pixman REQUIRED)
+
+include_directories(${PIXMAN_INCLUDE_DIR})
 
 add_library(sdl2X11Emulation SHARED
         include/X11/DECkeysym.h include/X11/HPkeysym.h include/X11/ImUtil.h
@@ -59,7 +66,10 @@ add_library(sdl2X11Emulation SHARED
         src/pixmap.c src/pointer.c src/region.c src/resourceTypes.h
         src/screensaver.c src/stdColors.h src/util.c src/util.h
         src/visual.c src/visual.h src/window.c src/window.h src/windowDebug.c
-        src/windowDebug.h src/windowInternal.c src/windowInternal.h)
+        src/windowDebug.h src/windowInternal.c src/windowInternal.h
+        src/missing.c)
+
+# set_target_properties(sdl2X11Emulation PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 
 target_include_directories(sdl2X11Emulation
         PUBLIC
@@ -69,4 +79,4 @@ target_include_directories(sdl2X11Emulation
 
 target_link_libraries(
         sdl2X11Emulation
-        SDL2 SDL_gpu_shared SDLTTF pixman)
+        ${SDL2_LIBRARY} ${SDL_GPU_LIBRARY} SDL2_ttf ${PIXMAN_LIBRARY})

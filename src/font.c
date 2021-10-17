@@ -5,8 +5,8 @@
 #include <errno.h>
 #include <dirent.h>
 #include <X11/Xlib.h>
-#include "SDL.h"
-#include "SDL_ttf.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "errors.h"
 #include "colors.h"
 #include "resourceTypes.h"

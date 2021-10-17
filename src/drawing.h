@@ -1,7 +1,7 @@
 #ifndef _DRAWING_H_
 #define _DRAWING_H_
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "colors.h"
 #include "resourceTypes.h"
 #include "window.h"

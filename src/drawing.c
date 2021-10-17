@@ -2,7 +2,7 @@
 #include "drawing.h"
 #include "errors.h"
 #include "window.h"
-#include "SDL_gpu.h"
+#include <SDL2/SDL_gpu.h>
 #include "display.h"
 #include "util.h"
 #include "gc.h"

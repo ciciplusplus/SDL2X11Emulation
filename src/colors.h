@@ -1,7 +1,7 @@
 #ifndef _COLORS_H_
 #define _COLORS_H_
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #if SDL_BYTEORDER != SDL_BIG_ENDIAN
 #  define RED_SHIFT   24

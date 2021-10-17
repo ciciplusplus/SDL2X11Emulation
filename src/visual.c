@@ -2,7 +2,7 @@
 #include <X11/Xutil.h>
 #include "visual.h"
 #include "util.h"
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include "errors.h"
 
 Visual* VISUAL_LIST = NULL;

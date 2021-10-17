@@ -1,8 +1,8 @@
 #ifndef _WINDOW_H_
 #define _WINDOW_H_
 
-#include "SDL.h"
-#include <SDL_gpu.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_gpu.h>
 #include "windowDebug.h"
 #include "resourceTypes.h"
 #include "util.h"
