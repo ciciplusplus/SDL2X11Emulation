@@ -2,7 +2,7 @@
 #include "gc.h"
 #include "display.h"
 #include "drawing.h"
-
+#include "colors.h"
 
 int XFreeGC(Display* display, GC gc) {
     SET_X_SERVER_REQUEST(display, X_FreeGC);
@@ -111,7 +111,15 @@ GC XCreateGC(Display* display, Drawable d, unsigned long valuemask, XGCValues* v
         color.r = GET_RED_FROM_COLOR(gc->foreground);
         color.g = GET_GREEN_FROM_COLOR(gc->foreground);
         color.b = GET_BLUE_FROM_COLOR(gc->foreground);
-        GPU_RectangleFilled(GET_PIXMAP_IMAGE(gc->tile)->target, 0 , 0, 2, 2, color);
+
+        SDL_Renderer* renderer = NULL;
+        GET_RENDERER(d, renderer);
+        if (renderer == NULL) {
+            return NULL;
+        }
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+        SDL_Rect rect = { .x = 0, .y = 0, .w = 2, .h = 2 };
+        SDL_RenderFillRect(renderer, &rect);
     }
     if (gc->stipple == None) {
         gc->stipple = XCreatePixmap(display, d, 2, 2, 1);
@@ -120,7 +128,15 @@ GC XCreateGC(Display* display, Drawable d, unsigned long valuemask, XGCValues* v
             return NULL;
         }
         SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
-        GPU_RectangleFilled(GET_PIXMAP_IMAGE(gc->tile)->target, 0 , 0, 2, 2, color);
+        
+        SDL_Renderer* renderer = NULL;
+        GET_RENDERER(d, renderer);
+        if (renderer == NULL) {
+            return NULL;
+        }
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+        SDL_Rect rect = { .x = 0, .y = 0, .w = 2, .h = 2 };
+        SDL_RenderFillRect(renderer, &rect);
     }
     return graphicContextStruct;
 }

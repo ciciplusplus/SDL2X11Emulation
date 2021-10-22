@@ -5,7 +5,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_C_FLAGS_DEBUG -DDEBUG_SDL2X11_EMULATION)
 
 find_package(SDL2 REQUIRED)
-find_package(SDL_gpu REQUIRED)
 find_package(Pixman REQUIRED)
 
 include_directories(${PIXMAN_INCLUDE_DIR})
@@ -59,15 +58,22 @@ add_library(sdl2X11Emulation SHARED
         include/X11/extensions/XKBsrv.h include/X11/extensions/XKBstr.h
         include/X11/keysym.h include/X11/keysymdef.h include/xbytes.h
         src/atomList.h src/atoms.c src/atoms.h src/colors.c src/colors.h
-        src/cursor.c src/display.c src/display.h src/drawing.c src/drawing.h
-        src/error.c src/errors.h src/events.c src/events.h src/font.c src/font.h
-        src/gc.c src/gc.h src/image.c src/input.c src/input.h
-        src/inputMethod.c src/inputMethod.h src/keysymlist.h src/netAtoms.h
-        src/pixmap.c src/pointer.c src/region.c src/resourceTypes.h
-        src/screensaver.c src/stdColors.h src/util.c src/util.h
-        src/visual.c src/visual.h src/window.c src/window.h src/windowDebug.c
-        src/windowDebug.h src/windowInternal.c src/windowInternal.h
-        src/missing.c)
+        src/display.c src/display.h src/drawing.h src/drawing.c
+        src/error.c src/errors.h src/events.c src/events.h
+        src/gc.c src/gc.h src/input.c src/input.h src/inputMethod.c src/inputMethod.h
+        src/keysymlist.h src/netAtoms.h
+        src/pixmap.c src/resourceTypes.h src/util.c src/util.h src/window.c src/window.h 
+        src/windowDebug.c src/windowDebug.h src/windowInternal.c src/windowInternal.h
+#        
+#         src/cursor.c
+#         src/font.c src/font.h
+#         src/image.c 
+#         
+#         src/pointer.c src/region.c
+#         src/screensaver.c src/stdColors.h 
+#         src/visual.c src/visual.h 
+        src/missing.c
+        )
 
 # set_target_properties(sdl2X11Emulation PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 
@@ -79,4 +85,4 @@ target_include_directories(sdl2X11Emulation
 
 target_link_libraries(
         sdl2X11Emulation
-        ${SDL2_LIBRARY} ${SDL_GPU_LIBRARY} SDL2_ttf ${PIXMAN_LIBRARY})
+        ${SDL2_LIBRARY} SDL2_ttf ${PIXMAN_LIBRARY})

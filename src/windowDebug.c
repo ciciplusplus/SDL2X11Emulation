@@ -34,15 +34,16 @@ void printWindowHierarchyOfChild(Window window, char* prepend, int prependLen) {
         printf("%s+- Window (address: %lu, id: 0x%08lx, x: %d, y: %d, %dx%d, state: %s)",
                prepend, children[i], GET_WINDOW_STRUCT(children[i])->debugId, x, y, w, h, mapState);
                
-        if (GET_WINDOW_STRUCT(children[i])->renderTarget != NULL) {
-            printf(", rendererTarget = %p", GET_WINDOW_STRUCT(children[i])->renderTarget);
+        if (GET_WINDOW_STRUCT(children[i])->sdlRenderer != NULL) {
+            printf(", sdlRenderer = %p", GET_WINDOW_STRUCT(children[i])->sdlRenderer);
         }
         if (GET_WINDOW_STRUCT(children[i])->sdlWindow != NULL) {
             printf(", sdlWindow = %d", SDL_GetWindowID(GET_WINDOW_STRUCT(children[i])->sdlWindow));
         }
-        if (GET_WINDOW_STRUCT(children[i])->unmappedContent != NULL) {
-            GPU_Image* unmappedContent = GET_WINDOW_STRUCT(children[i])->unmappedContent;
-            printf(", unmappedContent = %p (%d x %d)", unmappedContent, unmappedContent->w, unmappedContent->h);
+        if (GET_WINDOW_STRUCT(children[i])->sdlTexture != NULL) {
+            int w, h;
+            SDL_QueryTexture(GET_WINDOW_STRUCT(children[i])->sdlTexture, NULL, NULL, &w, &h);
+            printf(", sdlTexture = %p (%d x %d)", GET_WINDOW_STRUCT(children[i])->sdlTexture, w, h);
         }
         printf("\n");
         *charPointer = (char) (i != numChildren - 1 ? ' ' : '|');
@@ -57,78 +58,75 @@ void printWindowsHierarchy() {
     fflush(stdout);
 }
 
-void drawChildDebugBorder(Window window) {
-    size_t i;
-    unsigned int w, h;
-    unsigned long windowColor;
-    WindowStruct* windowStruct = GET_WINDOW_STRUCT(window);
-    LOG("getWindowRenderTarget of window %lu in %s.\n", window, __func__);
-    GPU_Target* renderTarget = getWindowRenderTarget(window);
-    if (renderTarget != NULL) {
-        GET_WINDOW_DIMS(window, w, h);
-        windowColor = windowStruct->debugId;
-        SDL_Color color = {
-                GET_RED_FROM_COLOR(windowColor),
-                GET_GREEN_FROM_COLOR(windowColor),
-                GET_BLUE_FROM_COLOR(windowColor),
-                (Uint8) (windowStruct->mapState == Mapped ? 0xFF : 0x0F)
-        };
-        GPU_Rectangle(renderTarget, 0, 0, w, h, color);
-    }
+void drawWindowDebugViewForChild(SDL_Renderer* renderer, Window window, int absParentX, int absParentY) {
+    int i;
+    SDL_Rect windowRect;
+    long drawColor = GET_WINDOW_STRUCT(window)->debugId;
+    GET_WINDOW_POS(window, windowRect.x, windowRect.y);
+    GET_WINDOW_DIMS(window, windowRect.w, windowRect.h);
+    windowRect.x += absParentX;
+    windowRect.y += absParentY;
+    SDL_SetRenderDrawColor(renderer, ((drawColor >> 24) & 0xFF) * 0.9, ((drawColor >> 16) & 0xFF) * 0.9, ((drawColor >> 8) & 0xFF) * 0.9, 0xFF);
+    SDL_RenderDrawRect(renderer, &windowRect);
     Window* children = GET_CHILDREN(window);
     for (i = 0; i < GET_WINDOW_STRUCT(window)->children.length; i++) {
-        drawChildDebugBorder(children[i]);
+        drawWindowDebugViewForChild(renderer, children[i], windowRect.x, windowRect.y);
     }
 }
 
-void drawWindowsDebugBorder() {
-    size_t i;
+void drawWindowDebugView() {
     Window* children = GET_CHILDREN(SCREEN_WINDOW);
-    for (i = 0; i < GET_WINDOW_STRUCT(SCREEN_WINDOW)->children.length; i++) {
-        if (GET_WINDOW_STRUCT(children[i])->mapState == Mapped) {
-            drawChildDebugBorder(children[i]);
-            LOG("getWindowRenderTarget of window %lu in %s.\n", children[i], __func__);
-            GPU_Flip(getWindowRenderTarget(children[i]));
-        }
-    }
-}
-
-void drawChildDebugSurfacePlane(Window window) {
-    size_t i;
+    int i, j;
     long windowColor;
-    WindowStruct* windowStruct = GET_WINDOW_STRUCT(window);
-    LOG("getWindowRenderTarget of window %lu in %s.\n", window, __func__);
-    GPU_Target* renderTarget = getWindowRenderTarget(window);
-    if (renderTarget != NULL) {
-        windowColor = windowStruct->debugId;
-        SDL_Color color = {
-                GET_RED_FROM_COLOR(windowColor),
-                GET_GREEN_FROM_COLOR(windowColor),
-                GET_BLUE_FROM_COLOR(windowColor),
-                0x03
-        };
-        int x, y, w, h;
-        GET_WINDOW_POS(window, x, y);
-        GET_WINDOW_DIMS(window, w, h);
-        GPU_RectangleFilled(renderTarget, x, y, w, h, color);
-    } else {
-        LOG("Failed to get renderer target for window %lu in %s\n", window, __func__);
-    }
-    Window* children = GET_CHILDREN(window);
-    for (i = 0; i < windowStruct->children.length; i++) {
-        if (GET_WINDOW_STRUCT(children[i])->mapState == Mapped) {
-            drawChildDebugSurfacePlane(children[i]);
+    for (i = 0; i < GET_WINDOW_STRUCT(SCREEN_WINDOW)->children.length; i++) {
+        if (GET_WINDOW_STRUCT(children[i])->sdlRenderer != NULL) {
+            windowColor = GET_WINDOW_STRUCT(children[i])->debugId;
+            WindowStruct* windowStruct = GET_WINDOW_STRUCT(children[i]);
+            SDL_RenderSetViewport(windowStruct->sdlRenderer, NULL);
+            SDL_Rect windowRect;
+            GET_WINDOW_POS(children[i], windowRect.x, windowRect.y);
+            GET_WINDOW_DIMS(children[i], windowRect.w, windowRect.h);
+            SDL_SetRenderDrawColor(windowStruct->sdlRenderer, (windowColor >> 24) & 0xFF,
+                                   (windowColor >> 16) & 0xFF, (windowColor >> 8) & 0xFF, 0xFF);
+            SDL_RenderDrawRect(windowStruct->sdlRenderer, &windowRect);
+            Window* topLevelWindowChildren = GET_CHILDREN(children[i]);
+            for (j = 0; j < windowStruct->children.length; j++) {
+                drawWindowDebugViewForChild(windowStruct->sdlRenderer, topLevelWindowChildren[j], 0, 0);
+            }
+            SDL_RenderPresent(windowStruct->sdlRenderer);
         }
     }
 }
 
-void drawWindowsDebugSurfacePlane() {
-    size_t i;
+void drawDebugWindowChildSurfacePlanes(Window child) {
+    int i;
+    long windowColor = GET_WINDOW_STRUCT(child)->debugId;
+    SDL_Renderer* renderer = getWindowRenderer(child);
+    SDL_Rect windowRect;
+    SDL_RenderGetViewport(renderer, &windowRect);
+    windowRect.x = 0;
+    windowRect.y = 0;
+    SDL_SetRenderDrawColor(renderer, (windowColor >> 24) & 0xFF, (windowColor >> 16) & 0xFF,
+                           (windowColor >> 8) & 0xFF, 0x55);
+    SDL_RenderFillRect(renderer, &windowRect);
+    Window* children = GET_CHILDREN(child);
+    for (i = 0; i < GET_WINDOW_STRUCT(child)->children.length; i++) {
+        drawDebugWindowChildSurfacePlanes(children[i]);
+    }
+}
+
+void drawDebugWindowSurfacePlanes() {
     Window* children = GET_CHILDREN(SCREEN_WINDOW);
+    int i;
     for (i = 0; i < GET_WINDOW_STRUCT(SCREEN_WINDOW)->children.length; i++) {
-        if (GET_WINDOW_STRUCT(children[i])->renderTarget != NULL) {
-            drawChildDebugSurfacePlane(children[i]);
-            GPU_Flip(GET_WINDOW_STRUCT(children[i])->renderTarget);
+        if (GET_WINDOW_STRUCT(children[i])->sdlRenderer != NULL) {
+            SDL_Renderer* renderer = GET_WINDOW_STRUCT(children[i])->sdlRenderer;
+            SDL_BlendMode oldBlendMode;
+            SDL_GetRenderDrawBlendMode(renderer, &oldBlendMode);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            drawDebugWindowChildSurfacePlanes(children[i]);
+            SDL_RenderPresent(renderer);
+            SDL_SetRenderDrawBlendMode(renderer, oldBlendMode);
         }
     }
 }

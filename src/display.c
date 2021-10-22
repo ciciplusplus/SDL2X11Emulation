@@ -31,12 +31,11 @@ int XCloseDisplay(Display* display) {
     // https://tronche.com/gui/x/xlib/display/XCloseDisplay.html
     if (numDisplaysOpen == 1) {
         freeAtomStorage();
-        freeFontStorage();
-        destroyScreenWindow(display);
+        //freeFontStorage();
         TTF_Quit();
-        GPU_Quit();
         SDL_Quit();
-        freeVisuals();
+        destroyScreenWindow(display);
+        //freeVisuals();
     }
     if (numDisplaysOpen > 0) {
         numDisplaysOpen--;
@@ -49,6 +48,8 @@ int XCloseDisplay(Display* display) {
 }
 
 Display* XOpenDisplay(_Xconst char* display_name) {
+    setenv("DISPLAY", ":0", 0);
+
     // https://tronche.com/gui/x/xlib/display/opening.html
     Display* display = malloc(sizeof(Display));
     if (display == NULL) {
@@ -71,12 +72,12 @@ Display* XOpenDisplay(_Xconst char* display_name) {
             return NULL;
         }
     }
-    GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
+    //GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
     if (numDisplaysOpen == 0) {
-        if (!(initVisuals() && initFontStorage())) {
-            free(display);
-            return NULL;
-        }
+        // if (!(initVisuals() && initFontStorage())) {
+        //     free(display);
+        //     return NULL;
+        // }
     }
     numDisplaysOpen++;
     
@@ -137,7 +138,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
         screen->mheight = displayMode.h;
         #endif
         screen->root = SCREEN_WINDOW;
-        screen->root_visual = getDefaultVisual(screenIndex);
+        //screen->root_visual = getDefaultVisual(screenIndex);
         // TODO: Need real values here (use from visual)
         screen->root_depth = 64;
         screen->white_pixel = 0xFFFFFFFF;
@@ -154,22 +155,23 @@ Display* XOpenDisplay(_Xconst char* display_name) {
             display->screens[screenIndex].root = SCREEN_WINDOW;
         }
     }
-    GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow = SDL_CreateWindow(NULL, 0, 0, 10, 10, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
-    if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow == NULL) {
-        LOG("XOpenDisplay: Initializing the SDL screen window failed: %s!\n", SDL_GetError());
-        XCloseDisplay(display);
-        return NULL;
-    }
-    GPU_SetInitWindow(SDL_GetWindowID(GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow));
-    GET_WINDOW_STRUCT(SCREEN_WINDOW)->renderTarget = GPU_Init(0, 0, 0);
-    if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->renderTarget == NULL) {
-        LOG("XOpenDisplay: Initializing SDL_gpu failed!\n");
-        XCloseDisplay(display);
-        return NULL;
-    }
+    // GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow = SDL_CreateWindow(NULL, 0, 0, 10, 10, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
+    // if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow == NULL) {
+    //     LOG("XOpenDisplay: Initializing the SDL screen window failed: %s!\n", SDL_GetError());
+    //     XCloseDisplay(display);
+    //     return NULL;
+    // }
+    // GPU_SetInitWindow(SDL_GetWindowID(GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow));
+    // GET_WINDOW_STRUCT(SCREEN_WINDOW)->renderTarget = GPU_Init(0, 0, 0);
+    // if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->renderTarget == NULL) {
+    //     LOG("XOpenDisplay: Initializing SDL_gpu failed!\n");
+    //     XCloseDisplay(display);
+    //     return NULL;
+    // }
     if (numDisplaysOpen == 1) {
         // Init the font search path
-        XSetFontPath(display, NULL, 0);
+        //XSetFontPath(display, NULL, 0);
+        WARN_UNIMPLEMENTED;
     }
     return display;
 }
@@ -190,7 +192,7 @@ int XBell(Display* display, int percent) {
 int XSync(Display *display, Bool discard) {
     // https://tronche.com/gui/x/xlib/event-handling/XSync.html
     WARN_UNIMPLEMENTED;
-    flipScreen();
+    drawWindowDataToScreen();
     return 1;
 }
 

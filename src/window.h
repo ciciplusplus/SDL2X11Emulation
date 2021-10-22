@@ -23,14 +23,14 @@ typedef struct {
     /* List of children */
     Array children;
     /* This is the drawing target of the window and its children while it is unmapped. Might be NULL.*/
-    GPU_Image* unmappedContent;
+    SDL_Texture* sdlTexture;
     /* 
      * This is the SDL Window handler to the real window of this window.
      * Only set if this window is a mapped top level window.
      */
     SDL_Window* sdlWindow;
-    /* The render target of this window. Only set if sdlWindow or unmappedContent is set. */
-    GPU_Target* renderTarget;
+    /* The renderer of this window. Only set if sdlWindow or sdlTexture is set. */
+    SDL_Renderer* sdlRenderer;
     /* The position of this window relative to its parent. */
     int x, y;
     /* The dimensions of this window. */

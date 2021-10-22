@@ -13,6 +13,8 @@ void XSetWMName ( Display *dpy, Window w, XTextProperty *tp) { printf("CALL XSet
 
 void XSetWMIconName ( Display *dpy, Window w, XTextProperty *tp) { printf("CALL XSetWMIconName\n"); }
 
+int XClearWindow ( Display* dpy, Window w) { return XClearArea(dpy, w, 0, 0, 0, 0, False); }
+
 int XClearArea ( register Display *dpy, Window w, int x, int y, unsigned int width, unsigned int height, Bool exposures) { printf("CALL XClearArea\n");  return -1; }
 
 long XMaxRequestSize(Display *dpy) { printf("CALL XMaxRequestSize\n");  return -1; }

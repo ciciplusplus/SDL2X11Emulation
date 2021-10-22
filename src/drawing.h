@@ -2,26 +2,45 @@
 #define _DRAWING_H_
 
 #include <SDL2/SDL.h>
-#include "colors.h"
 #include "resourceTypes.h"
 #include "window.h"
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN || 1
+#  define DEFAULT_RED_MASK   0xFF000000
+#  define DEFAULT_GREEN_MASK 0x00FF0000
+#  define DEFAULT_BLUE_MASK  0x0000FF00
+#  define DEFAULT_ALPHA_MASK 0x000000FF
+#else
+#  define DEFAULT_RED_MASK   0x000000FF
+#  define DEFAULT_GREEN_MASK 0x0000FF00
+#  define DEFAULT_BLUE_MASK  0x00FF0000
+#  define DEFAULT_ALPHA_MASK 0xFF000000
+#endif
 #define SDL_SURFACE_DEPTH 32
 
-#define GET_PIXMAP_IMAGE(pixmap) (IS_TYPE(pixmap, PIXMAP) ? ((GPU_Image*) GET_XID_VALUE(pixmap)) : NULL)
-#define GET_RENDER_TARGET(drawable, renderer) \
+#define LOCK_SURFACE(surface)   if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface)
+#define UNLOCK_SURFACE(surface) if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface)
+#define GET_PIXMAP_TEXTURE(pixmap) (IS_TYPE(pixmap, PIXMAP) ? ((SDL_Texture*) GET_XID_VALUE(pixmap)) : NULL)
+#define GET_RENDERER(drawable, renderer) \
 if (IS_TYPE(drawable, WINDOW)) {\
-    LOG("getWindowRenderTarget of window %lu in %s.\n", drawable, __func__);\
-    renderer = getWindowRenderTarget(drawable);\
+    renderer = getWindowRenderer(drawable);\
 } else if (IS_TYPE(drawable, PIXMAP)) {\
-    renderer = GET_PIXMAP_IMAGE(drawable)->target;\
+    renderer = GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlRenderer;\
+    if (SDL_SetRenderTarget(renderer, GET_PIXMAP_TEXTURE(drawable)) != 0) {\
+        fprintf(stderr, "SDL_SetRenderTarget failed while trying to get renderer in %s, %s, %d: %s\n", __FILE__, __func__, __LINE__, SDL_GetError());\
+    }\
 } else {\
-    LOG("Got unknown drawable type while trying to get renderer in %s, %s, %d\n",\
-        __FILE__, __func__, __LINE__);\
-    renderer = NULL;\
+    fprintf(stderr, "Got unknown drawable type while trying to get renderer in %s, %s, %d\n", __FILE__, __func__, __LINE__);\
 }
 
-GPU_Target* getWindowRenderTarget(Window window);
-void flipScreen(void);
+#ifdef DEBUG_WINDOWS
+void drawWindowDebugView();
+void drawDebugWindowSurfacePlanes();
+#endif
+void putPixel(SDL_Surface *surface, unsigned int x, unsigned int y, Uint32 pixel);
+Uint32 getPixel(SDL_Surface *surface, unsigned int x, unsigned int y);
+SDL_Renderer* getWindowRenderer(Window window);
+SDL_Surface* getRenderSurface(SDL_Renderer* renderer);
+void drawWindowDataToScreen(void);
 
 #endif /* _DRAWING_H_ */

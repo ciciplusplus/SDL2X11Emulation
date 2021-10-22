@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <X11/Xlib.h>
+#include <SDL2/SDL.h>
 #include "events.h"
 #include "errors.h"
 #include "input.h"
@@ -315,13 +316,6 @@ int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent) {
                         || sdlEvent->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
                         xEvent->xconfigure.width  = sdlEvent->window.data1;
                         xEvent->xconfigure.height = sdlEvent->window.data2;
-                        if (GET_WINDOW_STRUCT(eventWindow)->renderTarget != NULL) {
-                            // This is necessary, because sdl gpu will otherwise use an incorrect virtual resolution
-                            // which will offset the rendering.
-                            GPU_MakeCurrent(GET_WINDOW_STRUCT(eventWindow)->renderTarget, sdlEvent->window.windowID);
-                            GPU_SetWindowResolution((Uint16) sdlEvent->window.data1,
-                                                    (Uint16) sdlEvent->window.data2);
-                        }
                     } else {
                         SDL_GetWindowSize(SDL_GetWindowFromID(sdlEvent->window.windowID),
                                           &xEvent->xconfigure.width, &xEvent->xconfigure.height);
@@ -703,22 +697,23 @@ int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent) {
 }
 
 void updateWindowRenderTargets(Display* display) {
-    size_t i;
-    LOG("Resetting window render targets\n");
-    Window* children = GET_CHILDREN(SCREEN_WINDOW);
-    for (i = 0; i < GET_WINDOW_STRUCT(SCREEN_WINDOW)->children.length; i++) {
-        if (GET_WINDOW_STRUCT(children[i])->sdlWindow != NULL) {
-            WindowStruct* windowStruct = GET_WINDOW_STRUCT(children[i]);
-            LOG("Resetting render target of window %lu\n", children[i]);
-            GPU_FreeTarget(windowStruct->renderTarget);
-            windowStruct->renderTarget = GPU_CreateTargetFromWindow(SDL_GetWindowID(windowStruct->sdlWindow));
-            SDL_Rect exposeRect;
-            exposeRect.x = 0;
-            exposeRect.y = 0;
-            GET_WINDOW_DIMS(children[i], exposeRect.w, exposeRect.h);
-            postExposeEvent(display, children[i], &exposeRect, 1);
-        }
-    }
+    WARN_UNIMPLEMENTED;
+    // size_t i;
+    // LOG("Resetting window render targets\n");
+    // Window* children = GET_CHILDREN(SCREEN_WINDOW);
+    // for (i = 0; i < GET_WINDOW_STRUCT(SCREEN_WINDOW)->children.length; i++) {
+    //     if (GET_WINDOW_STRUCT(children[i])->sdlWindow != NULL) {
+    //         WindowStruct* windowStruct = GET_WINDOW_STRUCT(children[i]);
+    //         LOG("Resetting render target of window %lu\n", children[i]);
+    //         GPU_FreeTarget(windowStruct->renderTarget);
+    //         windowStruct->renderTarget = GPU_CreateTargetFromWindow(SDL_GetWindowID(windowStruct->sdlWindow));
+    //         SDL_Rect exposeRect;
+    //         exposeRect.x = 0;
+    //         exposeRect.y = 0;
+    //         GET_WINDOW_DIMS(children[i], exposeRect.w, exposeRect.h);
+    //         postExposeEvent(display, children[i], &exposeRect, 1);
+    //     }
+    // }
 }
 
 void printEventInfo(XEvent* event) {
