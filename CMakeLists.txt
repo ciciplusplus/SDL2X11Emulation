@@ -4,6 +4,18 @@ project(SDL2X11Emulation C)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_C_FLAGS_DEBUG -DDEBUG_SDL2X11_EMULATION)
 
+message("CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
+
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  message("Debug build.")
+ELSEIF(CMAKE_BUILD_TYPE MATCHES Release)
+  message("Release build.")
+ELSE()
+  message("Some other build type.")
+ENDIF()
+
+set(CMAKE_CXX_FLAGS "-g3 -ggdb")
+
 find_package(SDL2 REQUIRED)
 find_package(Pixman REQUIRED)
 
@@ -86,3 +98,6 @@ target_include_directories(sdl2X11Emulation
 target_link_libraries(
         sdl2X11Emulation
         ${SDL2_LIBRARY} SDL2_ttf ${PIXMAN_LIBRARY})
+
+add_executable(hi tests/hi.c)
+target_link_libraries(hi sdl2X11Emulation)
