@@ -6,6 +6,7 @@
 #include "display.h"
 #include "util.h"
 #include "gc.h"
+#include "colors.h"
 
 #define SDL_VIEWPORT_INCORRECT_COORDINATE_ORIGIN
 
@@ -42,7 +43,7 @@ SDL_Renderer* getWindowRenderer(Window window) {
     if (renderer == NULL) {
         if (IS_MAPPED_TOP_LEVEL_WINDOW(window)) {
             renderer = SDL_CreateRenderer(GET_WINDOW_STRUCT(window)->sdlWindow, -1,
-                                          SDL_RENDERER_ACCELERATED);
+                                          SDL_RENDERER_SOFTWARE);
         }
         if (renderer == NULL) {
             renderer = GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlRenderer;
@@ -81,7 +82,10 @@ SDL_Renderer* getWindowRenderer(Window window) {
 
 SDL_Surface* getRenderSurface(SDL_Renderer* renderer) {
     SDL_Rect rect;
-    SDL_RenderGetViewport(renderer, &rect);
+    rect.x = 0;
+    rect.y = 0;
+    SDL_RenderGetLogicalSize(renderer, &rect.w, &rect.h);
+    //SDL_RenderGetViewport(renderer, &rect);
     SDL_Surface* surface = SDL_CreateRGBSurface(0, rect.w, rect.h, SDL_SURFACE_DEPTH,
                                                 DEFAULT_RED_MASK, DEFAULT_GREEN_MASK,
                                                 DEFAULT_BLUE_MASK, DEFAULT_ALPHA_MASK);

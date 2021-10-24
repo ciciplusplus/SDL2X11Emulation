@@ -35,7 +35,7 @@ int XCloseDisplay(Display* display) {
         TTF_Quit();
         SDL_Quit();
         destroyScreenWindow(display);
-        //freeVisuals();
+        freeVisuals();
     }
     if (numDisplaysOpen > 0) {
         numDisplaysOpen--;
@@ -74,10 +74,10 @@ Display* XOpenDisplay(_Xconst char* display_name) {
     }
     //GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
     if (numDisplaysOpen == 0) {
-        // if (!(initVisuals() && initFontStorage())) {
-        //     free(display);
-        //     return NULL;
-        // }
+         if (!(initVisuals() /* && initFontStorage() */ )) {
+             free(display);
+             return NULL;
+         }
     }
     numDisplaysOpen++;
     
@@ -138,7 +138,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
         screen->mheight = displayMode.h;
         #endif
         screen->root = SCREEN_WINDOW;
-        //screen->root_visual = getDefaultVisual(screenIndex);
+        screen->root_visual = getDefaultVisual(screenIndex);
         // TODO: Need real values here (use from visual)
         screen->root_depth = 64;
         screen->white_pixel = 0xFFFFFFFF;
@@ -155,19 +155,18 @@ Display* XOpenDisplay(_Xconst char* display_name) {
             display->screens[screenIndex].root = SCREEN_WINDOW;
         }
     }
-    // GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow = SDL_CreateWindow(NULL, 0, 0, 10, 10, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
-    // if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow == NULL) {
-    //     LOG("XOpenDisplay: Initializing the SDL screen window failed: %s!\n", SDL_GetError());
-    //     XCloseDisplay(display);
-    //     return NULL;
-    // }
-    // GPU_SetInitWindow(SDL_GetWindowID(GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow));
-    // GET_WINDOW_STRUCT(SCREEN_WINDOW)->renderTarget = GPU_Init(0, 0, 0);
-    // if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->renderTarget == NULL) {
-    //     LOG("XOpenDisplay: Initializing SDL_gpu failed!\n");
-    //     XCloseDisplay(display);
-    //     return NULL;
-    // }
+//     GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow = SDL_CreateWindow(NULL, 0, 0, 320, 240, SDL_WINDOW_SHOWN);
+//     if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow == NULL) {
+//         LOG("XOpenDisplay: Initializing the SDL screen window failed: %s!\n", SDL_GetError());
+//         XCloseDisplay(display);
+//         return NULL;
+//     }
+//     GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlRenderer = SDL_CreateRenderer(GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow , -1, SDL_RENDERER_SOFTWARE);
+//     if (GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlRenderer == NULL) {
+//         LOG("XOpenDisplay: Initializing SDL renderer failed!\n");
+//         XCloseDisplay(display);
+//         return NULL;
+//     }
     if (numDisplaysOpen == 1) {
         // Init the font search path
         //XSetFontPath(display, NULL, 0);

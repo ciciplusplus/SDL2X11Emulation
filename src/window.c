@@ -5,6 +5,7 @@
 #include "atoms.h"
 #include "events.h"
 #include "display.h"
+#include "visual.h"
 
 // TODO: Cover cases where top-level window is re-parented and window is converted to top-level window
 
@@ -53,6 +54,9 @@ Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int
         free(windowStruct);
         FREE_XID(windowID);
         return None;
+    }
+    if (visual == CopyFromParent) {
+        visual = getDefaultVisual(0);
     }
     int visualClass = visual->CLASS_ATTRIBUTE;
     windowStruct->colormap = (Colormap) XCreateColormap(display, windowID, visual,
@@ -149,7 +153,7 @@ int XMapWindow(Display* display, Window window) {
         if (IS_MAPPED_TOP_LEVEL_WINDOW(window)) { return 1; }
         LOG("Mapping Window %lu\n", window);
         WindowStruct* windowStruct = GET_WINDOW_STRUCT(window);
-        Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+        Uint32 flags = SDL_WINDOW_SHOWN;
         if (windowStruct->borderWidth == 0) {
             flags |= SDL_WINDOW_BORDERLESS;
         }
@@ -164,7 +168,7 @@ int XMapWindow(Display* display, Window window) {
         registerWindowMapping(window, SDL_GetWindowID(sdlWindow));
         SDL_Texture* windowTexture = windowStruct->sdlTexture;
         if (windowTexture != NULL) {
-            SDL_Renderer *newRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED);
+            SDL_Renderer *newRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_SOFTWARE);
             if (newRenderer != NULL) {
                 SDL_Renderer* oldWindowRenderer;
                 GET_RENDERER(window, oldWindowRenderer);
@@ -172,8 +176,7 @@ int XMapWindow(Display* display, Window window) {
                 SDL_Texture* oldWindowTexture = SDL_CreateTextureFromSurface(newRenderer, windowSurface);
                 SDL_FreeSurface(windowSurface);
                 if (SDL_RenderCopy(newRenderer, oldWindowTexture, NULL, NULL) != 0) {
-                    LOG("Failed to copy window surface with renderer in XMapWindow: %s\n",
-                            SDL_GetError());
+                    LOG("Failed to copy window surface with renderer in XMapWindow: %s\n", SDL_GetError());
                     handleError(0, display, None, 0, BadMatch, 0);
                     SDL_DestroyWindow(sdlWindow);
                     SDL_DestroyTexture(oldWindowTexture);

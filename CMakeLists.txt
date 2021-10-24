@@ -14,7 +14,11 @@ ELSE()
   message("Some other build type.")
 ENDIF()
 
-set(CMAKE_CXX_FLAGS "-g3 -ggdb")
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+  add_compile_options(-g3 -ggdb)
+ENDIF()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(SDL2 REQUIRED)
 find_package(Pixman REQUIRED)
@@ -74,7 +78,8 @@ add_library(sdl2X11Emulation SHARED
         src/error.c src/errors.h src/events.c src/events.h
         src/gc.c src/gc.h src/input.c src/input.h src/inputMethod.c src/inputMethod.h
         src/keysymlist.h src/netAtoms.h
-        src/pixmap.c src/resourceTypes.h src/util.c src/util.h src/window.c src/window.h 
+        src/pixmap.c src/resourceTypes.h src/util.c src/util.h
+        src/visual.c src/visual.h src/window.c src/window.h
         src/windowDebug.c src/windowDebug.h src/windowInternal.c src/windowInternal.h
 #        
 #         src/cursor.c
@@ -82,8 +87,7 @@ add_library(sdl2X11Emulation SHARED
 #         src/image.c 
 #         
 #         src/pointer.c src/region.c
-#         src/screensaver.c src/stdColors.h 
-#         src/visual.c src/visual.h 
+#         src/screensaver.c src/stdColors.h
         src/missing.c
         )
 
@@ -101,3 +105,6 @@ target_link_libraries(
 
 add_executable(hi tests/hi.c)
 target_link_libraries(hi sdl2X11Emulation)
+
+add_executable(hi-x11 tests/hi.c)
+target_link_libraries(hi-x11 X11)

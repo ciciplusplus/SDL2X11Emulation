@@ -35,19 +35,26 @@ int main () {
 
 	init_x();
 
+    long i = 0;
+
 	/* look for events forever... */
-	while(1) {		
+	while(1) {
+        i++;
+        if (i % 1000000 != 0) continue;
+
 		/* get the next event and stuff it into our event variable.
 		   Note:  only events we set the mask for are detected!
 		*/
-		XNextEvent(dis, &event);
+		//XNextEvent(dis, &event);
 	
-		if (event.type==Expose && event.xexpose.count==0) {
+		//if (event.type==Expose && event.xexpose.count==0)
+        {
 		/* the window was exposed redraw it! */
 			redraw();
 		}
-		if (event.type==KeyPress&&
-		    XLookupString(&event.xkey,text,255,&key,0)==1) {
+//		if (event.type==KeyPress&&
+//		    XLookupString(&event.xkey,text,255,&key,0)==1)
+        {
 		/* use the XLookupString routine to convert the invent
 		   KeyPress data into regular text.  Weird but necessary...
 		*/
@@ -59,9 +66,11 @@ int main () {
 			int x = rand()%300, y = rand()%300;
 
 			strcpy(text,"X is FUN!");
-			XSetForeground(dis,gc,rand()%255);
+			XSetForeground(dis,gc,(rand()%255) << 8);
 			//XDrawString(dis,win,gc,x,y, text, strlen(text));
 			XDrawRectangle(dis, win, gc, x, y, 40, 20);
+
+            //sleep(1);
 		}
 		// if (event.type==ButtonPress) {
 		// /* tell where the mouse Button was Pressed */
@@ -87,12 +96,21 @@ void init_x() {
 	white=WhitePixel(dis, screen);
   //  	win=XCreateSimpleWindow(dis,DefaultRootWindow(dis),0,0,	
 		// 300, 300, 5,black, white);
+
+//    XVisualInfo vinfo = {0};
+//    if (!XMatchVisualInfo(dis, screen, 32, TrueColor, &vinfo)) {
+//        /* TODO(djr): Logging */
+//        fputs("X11: Unable to find supported visual info", stderr);
+//        //return -1;
+//        exit(-1);
+//    }
+
    	win=XCreateWindow(dis,DefaultRootWindow(dis),0,0,	
-		300, 300, 5, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
+		320, 240, 5, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
 
 	//XSetStandardProperties(dis,win,"Howdy","Hi",None,NULL,0,NULL);
 	XSelectInput(dis, win, ExposureMask|ButtonPressMask|KeyPressMask);
-        gc=XCreateGC(dis, win, 0,0);        
+    gc=XCreateGC(dis, win, 0,0);
 	XSetBackground(dis,gc,white);
 	XSetForeground(dis,gc,black);
 	XClearWindow(dis, win);

@@ -177,7 +177,7 @@ XImage* XGetImage(Display* display, Drawable drawable, int x, int y, unsigned in
         return NULL;
     }
     //TODO: Implement: Read from Textur into data and Convert from data to image type
-//    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_RGBA8888, GET_SURFACE(drawable)->pixels, GET_SURFACE(drawable)->pitch);
+//    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, GET_SURFACE(drawable)->pixels, GET_SURFACE(drawable)->pitch);
 
 //    unsigned int currX, currY;
 //    // TODO: Worry about XYPixmap
