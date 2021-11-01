@@ -23,6 +23,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(SDL2 REQUIRED)
 find_package(Pixman REQUIRED)
 
+include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${PIXMAN_INCLUDE_DIR})
 
 add_library(sdl2X11Emulation SHARED
