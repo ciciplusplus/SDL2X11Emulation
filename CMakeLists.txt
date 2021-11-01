@@ -109,3 +109,6 @@ target_link_libraries(hi sdl2X11Emulation)
 
 add_executable(hi-x11 tests/hi.c)
 target_link_libraries(hi-x11 X11)
+
+add_executable(shm-viewer tests/shm_viewer.c)
+target_link_libraries(shm-viewer ${SDL2_LIBRARY})
