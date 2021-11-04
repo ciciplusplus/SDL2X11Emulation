@@ -27,7 +27,7 @@ typedef struct {
 } FontCacheEntry;
 
 #define GET_FONT(fontXID) ((TTF_Font*) GET_XID_VALUE(fontXID))
-#define FONT_SIZE 8
+#define FONT_SIZE 12
 
 // This Array contains a list of default font search paths for the compiled architecture
 static const char* DEFAULT_FONT_SEARCH_PATHS[] = {
@@ -246,7 +246,9 @@ Font XLoadFont(Display* display, _Xconst char* name) {
     const char* fontPath = NULL;
     if (strcmp(name, "fixed") == 0 || strcmp(name, "cursor") == 0) {
         // This seems to be a common monospace font on most Android devices.
-        fontPath = "/system/fonts/DroidSansMono.ttf";
+        //fontPath = "/system/fonts/DroidSansMono.ttf";
+
+        fontPath = "/usr/share/fonts/truetype/freefont/FreeMono.ttf";
     } else {
         ssize_t index = findInArrayCmp(fontCache, (void *) name, &fontCmp);
         if (index != -1) {
@@ -581,7 +583,7 @@ int XTextWidth(XFontStruct* font_struct, _Xconst char* string, int count) {
     return width;
 }
 
-Bool renderText(SDL_Renderer* renderer, GC gc, int x, int y, const char* string) {
+Bool renderText(Display *display, SDL_Renderer *renderer, GC gc, int x, int y, const char *string) {
     LOG("Rendering text: '%s'\n", string);
     if (string == NULL || string[0] == '\0') { return True; }
     GraphicContext* gContext = GET_GC(gc);
@@ -591,6 +593,10 @@ Bool renderText(SDL_Renderer* renderer, GC gc, int x, int y, const char* string)
             GET_BLUE_FROM_COLOR(gContext->foreground),
             GET_ALPHA_FROM_COLOR(gContext->foreground),
     };
+    if (gContext->font == None) {
+        // TODO: do we care about XUnloadFont ?
+        gContext->font = XLoadFont(display, "fixed");
+    }
     SDL_Surface* fontSurface = TTF_RenderUTF8_Blended(GET_FONT(gContext->font), string, color);
     if (fontSurface == NULL) {
         return False;
@@ -610,6 +616,7 @@ Bool renderText(SDL_Renderer* renderer, GC gc, int x, int y, const char* string)
         return False;
     }
     SDL_DestroyTexture(fontTexture);
+    SDL_RenderPresent(renderer);
     return True;
 }
 
@@ -638,7 +645,7 @@ int XDrawString16(Display* display, Drawable drawable, GC gc, int x, int y, _Xco
         return 0;
     }
     int res = 1;
-    if (!renderText(renderer, gc, x, y, text)) {
+    if (!renderText(display, renderer, gc, x, y, text)) {
         LOG("Rendering the text failed in %s: %s\n", __func__, SDL_GetError());
         handleError(0, display, drawable, 0, BadMatch, 0);
         free(text);
@@ -673,7 +680,7 @@ int XDrawString(Display* display, Drawable drawable, GC gc, int x, int y, _Xcons
         return 0;
     }
     int res = 1;
-    if (!renderText(renderer, gc, x, y, text)) {
+    if (!renderText(display, renderer, gc, x, y, text)) {
         LOG("Rendering the text failed in %s: %s\n", __func__, SDL_GetError());
         handleError(0, display, drawable, 0, BadMatch, 0);
         res = 0;
