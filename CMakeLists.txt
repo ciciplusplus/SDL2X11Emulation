@@ -77,14 +77,14 @@ add_library(sdl2X11Emulation SHARED
         src/atomList.h src/atoms.c src/atoms.h src/colors.c src/colors.h
         src/display.c src/display.h src/drawing.h src/drawing.c
         src/error.c src/errors.h src/events.c src/events.h src/font.c src/font.h
-        src/gc.c src/gc.h src/input.c src/input.h src/inputMethod.c src/inputMethod.h
-        src/keysymlist.h src/netAtoms.h
+        src/gc.c src/gc.h src/image.c src/input.c src/input.h
+        src/inputMethod.c src/inputMethod.h src/keysymlist.h src/netAtoms.h
         src/pixmap.c src/resourceTypes.h src/util.c src/util.h
         src/visual.c src/visual.h src/window.c src/window.h
         src/windowDebug.c src/windowDebug.h src/windowInternal.c src/windowInternal.h
 #        
 #         src/cursor.c
-#         src/image.c 
+#
 #         
 #         src/pointer.c src/region.c
 #         src/screensaver.c src/stdColors.h
@@ -120,3 +120,9 @@ target_link_libraries(xfonts sdl2X11Emulation)
 
 add_executable(xfonts-x11 tests/xfonts.c)
 target_link_libraries(xfonts-x11 X11)
+
+add_executable(display-image tests/display_image.c)
+target_link_libraries(display-image sdl2X11Emulation)
+
+add_executable(display-image-x11 tests/display_image.c)
+target_link_libraries(display-image-x11 X11)

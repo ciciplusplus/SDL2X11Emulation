@@ -18,6 +18,20 @@ int XDestroyWindow(Display* display, Window window) {
     return 1;
 }
 
+//Window XCreateSimpleWindow(
+//        Display* display,
+//        Window parent,
+//        int x,
+//        int y,
+//        unsigned int width,
+//        unsigned int height,
+//        unsigned int border_width,
+//        unsigned long border,
+//        unsigned long background
+//) {
+//    return XCreateWindow(display, parent, x, y, width, height, border_width, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
+//}
+
 Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int width,
                      unsigned int height, unsigned int border_width, int depth, unsigned int clazz,
                      Visual* visual, unsigned long valueMask, XSetWindowAttributes* attributes) {

@@ -4,6 +4,7 @@
 #include "resourceTypes.h"
 #include "window.h"
 #include "display.h"
+#include "gc.h"
 
 // Inspired by https://github.com/csulmone/X11/blob/59029dc09211926a5c95ff1dd2b828574fefcde6/libX11-1.5.0/src/ImUtil.c
 
@@ -43,6 +44,8 @@ XImage* XCreateImage(Display* display, Visual* visual, unsigned int depth, int f
             image->bits_per_pixel = 32;
         }
     }
+
+    XInitImage(image);
     return image;
 }
 
@@ -52,7 +55,7 @@ char* getImageDataPointer(XImage* image, unsigned int x, unsigned int y) {
     return pointer + (image->bits_per_pixel / 8) * x;
 }
 
-int putPixel(XImage* image, int x, int y, unsigned long pixel) {
+int _putPixel(XImage* image, int x, int y, unsigned long pixel) {
     // https://tronche.com/gui/x/xlib/utilities/XPutPixel.html
     LOG("%s on %p: %lu (%ld, %ld, %ld)\n", __func__, image, pixel,
         (pixel >> 24) & 0xFF, (pixel >> 16) & 0xFF, (pixel >> 8) & 0xFF);
@@ -79,7 +82,7 @@ int putPixel(XImage* image, int x, int y, unsigned long pixel) {
     return 1;
 }
 
-unsigned long getPixel(XImage* image, int x, int y) {
+unsigned long _getPixel(XImage* image, int x, int y) {
     // https://tronche.com/gui/x/xlib/utilities/XGetPixel.html
     LOG("%s from %p: x = %d, y = %d\n", __func__, image, x, y);
     if (image->data == NULL) {
@@ -123,28 +126,43 @@ int XPutImage(Display* display, Drawable drawable, GC gc, XImage* image, int src
     TYPE_CHECK(drawable, DRAWABLE, display, 0);
     LOG("%s: Drawing %p on %lu\n", __func__, image, drawable);
     // TODO: Implement this: Create Uint32* data, Create Texture from data, rendercopy
-//    LOCK_SURFACE(surface);
-//    unsigned int x, y;
-//    if (image->format == XYBitmap && 0) {
-//        for (x = 0; x < width; x++) {
-//            for (y = 0; y < height; y++) {
-//                unsigned long color = gc->background;
-//                if (XGetPixel(image, src_x + x, src_y + y)) {
-//                    color = gc->foreground;
-//                }
-//                putPixel(surface, dest_x + x, dest_y + y, color);
-//            }
-//        }
-//    } else {
-//        for (x = 0; x < width; x++) {
-//            for (y = 0; y < height; y++) {
-//                unsigned long color = XGetPixel(image, src_x + x, src_y + y);
-////                LOG("%s: %lu (%ld, %ld, %ld)\n", __func__, color, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF);
-//                putPixel(surface, dest_x + x, dest_y + y, XGetPixel(image, src_x + x, src_y + y));
-//            }
-//        }
-//    }
-//    UNLOCK_SURFACE(surface);
+
+    SDL_Renderer* renderer = NULL;
+    GET_RENDERER(drawable, renderer);
+    if (renderer == NULL) {
+        LOG("Failed to create renderer in %s: %s\n", __func__, SDL_GetError());
+        handleError(0, display, drawable, 0, BadDrawable, 0);
+        return -1;
+    }
+    SDL_Surface *surface = getRenderSurface(renderer);
+
+    SDL_RenderClear(renderer);
+    SDL_RenderFillRect(renderer, NULL);
+
+    LOCK_SURFACE(surface);
+    unsigned int x, y;
+    if (image->format == XYBitmap && 0) {
+        GraphicContext* graphicContext = GET_GC(gc);
+        for (x = 0; x < width; x++) {
+            for (y = 0; y < height; y++) {
+                unsigned long color = graphicContext->background;
+                if (XGetPixel(image, src_x + x, src_y + y)) {
+                    color = graphicContext->foreground;
+                }
+                putPixel(surface, dest_x + x, dest_y + y, color);
+            }
+        }
+    } else {
+        for (x = 0; x < width; x++) {
+            for (y = 0; y < height; y++) {
+                unsigned long color = XGetPixel(image, src_x + x, src_y + y);
+//                LOG("%s: %lu (%ld, %ld, %ld)\n", __func__, color, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF);
+                putPixel(surface, dest_x + x, dest_y + y, XGetPixel(image, src_x + x, src_y + y));
+            }
+        }
+    }
+    UNLOCK_SURFACE(surface);
+    SDL_RenderPresent(renderer);
     return 1;
 }
 
@@ -171,28 +189,37 @@ XImage* XGetImage(Display* display, Drawable drawable, int x, int y, unsigned in
     }
     // FIXME: The NULL will cause problems.
     XImage* image = XCreateImage(display, NULL, depth, format, 0, data, width, height,
-                                 (int) NULL, bytes_per_line);
+                                 32, bytes_per_line);
     if (image == NULL) {
         free(data);
         return NULL;
     }
     //TODO: Implement: Read from Textur into data and Convert from data to image type
-//    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, GET_SURFACE(drawable)->pixels, GET_SURFACE(drawable)->pitch);
+    //SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888, GET_SURFACE(drawable)->pixels, GET_SURFACE(drawable)->pitch);
 
-//    unsigned int currX, currY;
-//    // TODO: Worry about XYPixmap
-////    if (format == XYPixmap) {
-//    for (currX = 0; currX < width; currX++) {
-//        for (currY = 0; currY < height; currY++) {
-//            data[currY * width + currX] = plane_mask & getPixel(drawableSurface, x + currX, y + currY);
-//        }
-//    }
+    SDL_Renderer* renderer = NULL;
+    GET_RENDERER(drawable, renderer);
+    if (renderer == NULL) {
+        LOG("Failed to create renderer in %s: %s\n", __func__, SDL_GetError());
+        handleError(0, display, drawable, 0, BadDrawable, 0);
+        return NULL;
+    }
+    SDL_Surface *drawableSurface = getRenderSurface(renderer);
+
+    unsigned int currX, currY;
+    // TODO: Worry about XYPixmap
+//    if (format == XYPixmap) {
+    for (currX = 0; currX < width; currX++) {
+        for (currY = 0; currY < height; currY++) {
+            data[currY * width + currX] = plane_mask & getPixel(drawableSurface, x + currX, y + currY);
+        }
+    }
     return image;
 }
 
 Status _XInitImageFuncPtrs(XImage *image) {
-    image->f.put_pixel = putPixel;
-    image->f.get_pixel = getPixel;
+    image->f.put_pixel = _putPixel;
+    image->f.get_pixel = _getPixel;
     image->f.create_image = XCreateImage;
     image->f.destroy_image = destroyImage;
     image->f.add_pixel = NULL; // TODO

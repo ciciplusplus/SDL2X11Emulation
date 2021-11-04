@@ -94,8 +94,7 @@ void init_x() {
    	screen=DefaultScreen(dis);
 	black=BlackPixel(dis,screen),
 	white=WhitePixel(dis, screen);
-  //  	win=XCreateSimpleWindow(dis,DefaultRootWindow(dis),0,0,	
-		// 300, 300, 5,black, white);
+    //win=XCreateSimpleWindow(dis,DefaultRootWindow(dis), 0, 0, 320, 240, 5, black, white);
 
 //    XVisualInfo vinfo = {0};
 //    if (!XMatchVisualInfo(dis, screen, 32, TrueColor, &vinfo)) {
@@ -105,7 +104,7 @@ void init_x() {
 //        exit(-1);
 //    }
 
-   	win=XCreateWindow(dis,DefaultRootWindow(dis),0,0,	
+   	win=XCreateWindow(dis,DefaultRootWindow(dis),0,0,
 		320, 240, 5, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
 
 	//XSetStandardProperties(dis,win,"Howdy","Hi",None,NULL,0,NULL);

@@ -152,6 +152,9 @@ Display* XOpenDisplay(_Xconst char* display_name) {
         }
         for (screenIndex = 0; screenIndex < display->nscreens; screenIndex++) {
             display->screens[screenIndex].root = SCREEN_WINDOW;
+
+            // FIXME: what is correct way to init default gc?
+            display->screens[screenIndex].default_gc = XCreateGC(display, RootWindow(display, 0), 0, 0);
         }
     }
 //     GET_WINDOW_STRUCT(SCREEN_WINDOW)->sdlWindow = SDL_CreateWindow(NULL, 0, 0, 320, 240, SDL_WINDOW_SHOWN);
