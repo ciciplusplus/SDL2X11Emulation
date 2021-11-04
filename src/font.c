@@ -33,6 +33,8 @@ typedef struct {
 static const char* DEFAULT_FONT_SEARCH_PATHS[] = {
 #ifdef __ANDROID__
         "/system/fonts"
+#else
+        "/usr/share/fonts/truetype/freefont"
 #endif /* __ANDROID__ */
 };
 
@@ -206,15 +208,6 @@ Bool initFontStorage() {
 }
 
 void freeFontStorage() {
-    if (fontSearchPaths != NULL) {
-        // Clear the array and free the data
-        while (fontSearchPaths->length > 0) {
-            free(removeArray(fontSearchPaths, 0, False));
-        }
-        freeArray(fontSearchPaths);
-        free(fontSearchPaths);
-        fontSearchPaths = NULL;
-    }
     if (fontCache != NULL) {
         // Clear the array and free the data
         while (fontCache->length > 0) {
@@ -225,6 +218,15 @@ void freeFontStorage() {
         }
         freeArray(fontCache);
         free(fontCache);
+        //fontSearchPaths = NULL;
+    }
+    if (fontSearchPaths != NULL) {
+        // Clear the array and free the data
+        while (fontSearchPaths->length > 0) {
+            free(removeArray(fontSearchPaths, 0, False));
+        }
+        freeArray(fontSearchPaths);
+        free(fontSearchPaths);
         fontSearchPaths = NULL;
     }
 }
@@ -578,7 +580,7 @@ int XTextWidth(XFontStruct* font_struct, _Xconst char* string, int count) {
     return width;
 }
 
-Bool renderText(GPU_Target* renderTarget, GC gc, int x, int y, const char* string) {
+Bool renderText(SDL_Renderer* renderer, GC gc, int x, int y, const char* string) {
     LOG("Rendering text: '%s'\n", string);
     if (string == NULL || string[0] == '\0') { return True; }
     GraphicContext* gContext = GET_GC(gc);
@@ -592,15 +594,21 @@ Bool renderText(GPU_Target* renderTarget, GC gc, int x, int y, const char* strin
     if (fontSurface == NULL) {
         return False;
     }
-    GPU_Image* fontImage = GPU_CopyImageFromSurface(fontSurface);
+    SDL_Rect destR;
+    destR.w = fontSurface->w;
+    destR.h = fontSurface->h;
+    SDL_Texture* fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
     SDL_FreeSurface(fontSurface);
-    if (fontImage == NULL) {
+    if (fontTexture == NULL) {
         return False;
     }
-    y -= TTF_FontAscent(GET_FONT(gContext->font));
-    GPU_Blit(fontImage, NULL, renderTarget, x + fontImage->w / 2, y + fontImage->h / 2);
-    GPU_FreeImage(fontImage);
-    GPU_Flip(renderTarget);
+    destR.x = x;
+    destR.y = y - TTF_FontAscent(GET_FONT(gContext->font))/* - 6*/;
+    // h and w are ignored
+    if (SDL_RenderCopy(renderer, fontTexture, NULL, &destR) != 0) {
+        return False;
+    }
+    SDL_DestroyTexture(fontTexture);
     return True;
 }
 
@@ -614,9 +622,9 @@ int XDrawString16(Display* display, Drawable drawable, GC gc, int x, int y, _Xco
         return 0;
     }
     if (length == 0 || ((Uint16*) string)[0] == 0) { return 1; }
-    GPU_Target* renderTarget;
-    GET_RENDER_TARGET(drawable, renderTarget);
-    if (renderTarget == NULL) {
+    SDL_Renderer* renderer;
+    GET_RENDERER(drawable, renderer);
+    if (renderer == NULL) {
         LOG("Failed to get the render target in %s\n", __func__);
         handleError(0, display, None, 0, BadDrawable, 0);
         return 0;
@@ -629,7 +637,7 @@ int XDrawString16(Display* display, Drawable drawable, GC gc, int x, int y, _Xco
         return 0;
     }
     int res = 1;
-    if (!renderText(renderTarget, gc, x, y, text)) {
+    if (!renderText(renderer, gc, x, y, text)) {
         LOG("Rendering the text failed in %s: %s\n", __func__, SDL_GetError());
         handleError(0, display, drawable, 0, BadMatch, 0);
         free(text);
@@ -649,9 +657,9 @@ int XDrawString(Display* display, Drawable drawable, GC gc, int x, int y, _Xcons
         return 0;
     }
     if (length == 0 || string[0] == 0) { return 1; }
-    GPU_Target* renderTarget;
-    GET_RENDER_TARGET(drawable, renderTarget);
-    if (renderTarget == NULL) {
+    SDL_Renderer* renderer;
+    GET_RENDERER(drawable, renderer);
+    if (renderer == NULL) {
         LOG("Failed to get the render target in %s\n", __func__);
         handleError(0, display, None, 0, BadDrawable, 0);
         return 0;
@@ -664,7 +672,7 @@ int XDrawString(Display* display, Drawable drawable, GC gc, int x, int y, _Xcons
         return 0;
     }
     int res = 1;
-    if (!renderText(renderTarget, gc, x, y, text)) {
+    if (!renderText(renderer, gc, x, y, text)) {
         LOG("Rendering the text failed in %s: %s\n", __func__, SDL_GetError());
         handleError(0, display, drawable, 0, BadMatch, 0);
         res = 0;

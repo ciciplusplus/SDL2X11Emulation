@@ -61,14 +61,14 @@ int main () {
 			if (text[0]=='q') {
 				close_x();
 			}
-			printf("You pressed the %c key!\n",text[0]);
+			//printf("You pressed the %c key!\n",text[0]);
 
 			int x = rand()%300, y = rand()%300;
 
 			strcpy(text,"X is FUN!");
-			XSetForeground(dis,gc,(rand()%255) << 8);
-			//XDrawString(dis,win,gc,x,y, text, strlen(text));
-			XDrawRectangle(dis, win, gc, x, y, 40, 20);
+			XSetForeground(dis,gc, (rand()%255) << 8);
+			XDrawString(dis,win,gc,x,y, text, strlen(text));
+			//XDrawRectangle(dis, win, gc, x, y, 40, 20);
 
             //sleep(1);
 		}

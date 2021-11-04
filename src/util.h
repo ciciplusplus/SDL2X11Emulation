@@ -19,7 +19,11 @@
 #define TO_STRING_HELPER(x) #x
 #define TO_STRING(x) TO_STRING_HELPER(x)
 
+#ifdef DEBUG_SDL2X11_EMULATION
 #  define LOG(msg, args...) fprintf(stderr, msg, ##args)
+#else
+#  define LOG(msg, args...) ((void) msg)
+#endif /* DEBUG_SDL2X11_EMULATION */
 
 #define WARN_UNIMPLEMENTED LOG("Hit unimplemented function %s.\n", __func__)
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
-project(SDL2X11Emulation C)
+project(SDL2X11Emulation C CXX)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_C_FLAGS_DEBUG -DDEBUG_SDL2X11_EMULATION)
@@ -76,7 +76,7 @@ add_library(sdl2X11Emulation SHARED
         include/X11/keysym.h include/X11/keysymdef.h include/xbytes.h
         src/atomList.h src/atoms.c src/atoms.h src/colors.c src/colors.h
         src/display.c src/display.h src/drawing.h src/drawing.c
-        src/error.c src/errors.h src/events.c src/events.h
+        src/error.c src/errors.h src/events.c src/events.h src/font.c src/font.h
         src/gc.c src/gc.h src/input.c src/input.h src/inputMethod.c src/inputMethod.h
         src/keysymlist.h src/netAtoms.h
         src/pixmap.c src/resourceTypes.h src/util.c src/util.h
@@ -84,7 +84,6 @@ add_library(sdl2X11Emulation SHARED
         src/windowDebug.c src/windowDebug.h src/windowInternal.c src/windowInternal.h
 #        
 #         src/cursor.c
-#         src/font.c src/font.h
 #         src/image.c 
 #         
 #         src/pointer.c src/region.c
@@ -109,3 +108,15 @@ target_link_libraries(hi sdl2X11Emulation)
 
 add_executable(hi-x11 tests/hi.c)
 target_link_libraries(hi-x11 X11)
+
+add_executable(font-path tests/font_path.cpp)
+target_link_libraries(font-path sdl2X11Emulation)
+
+add_executable(font-path-x11 tests/font_path.cpp)
+target_link_libraries(font-path-x11 X11)
+
+add_executable(xfonts tests/xfonts.c)
+target_link_libraries(xfonts sdl2X11Emulation)
+
+add_executable(xfonts-x11 tests/xfonts.c)
+target_link_libraries(xfonts-x11 X11)

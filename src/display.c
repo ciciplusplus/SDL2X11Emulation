@@ -31,7 +31,7 @@ int XCloseDisplay(Display* display) {
     // https://tronche.com/gui/x/xlib/display/XCloseDisplay.html
     if (numDisplaysOpen == 1) {
         freeAtomStorage();
-        //freeFontStorage();
+        freeFontStorage();
         TTF_Quit();
         SDL_Quit();
         destroyScreenWindow(display);
@@ -41,7 +41,7 @@ int XCloseDisplay(Display* display) {
         numDisplaysOpen--;
     }
     if (GET_DISPLAY(display)->nscreens > 0) {
-        free(&GET_DISPLAY(display)->screens);
+        free(GET_DISPLAY(display)->screens);
     }
     free(display);
     return 0;
@@ -72,9 +72,8 @@ Display* XOpenDisplay(_Xconst char* display_name) {
             return NULL;
         }
     }
-    //GPU_SetDebugLevel(GPU_DEBUG_LEVEL_MAX);
     if (numDisplaysOpen == 0) {
-         if (!(initVisuals() /* && initFontStorage() */ )) {
+         if (!(initVisuals() && initFontStorage())) {
              free(display);
              return NULL;
          }
@@ -169,8 +168,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
 //     }
     if (numDisplaysOpen == 1) {
         // Init the font search path
-        //XSetFontPath(display, NULL, 0);
-        WARN_UNIMPLEMENTED;
+        XSetFontPath(display, NULL, 0);
     }
     return display;
 }
