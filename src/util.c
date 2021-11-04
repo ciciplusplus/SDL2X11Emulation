@@ -34,7 +34,7 @@ void* removeArray(Array* a, size_t index, Bool preserveOrder) {
         if (preserveOrder) {
             memmove(&a->array[index], &a->array[index + 1], sizeof(void *) * (a->length - (index + 1)));
         } else {
-            a->array[index] = a->array[a->length];
+            a->array[index] = a->array[a->length - 1];
         }
     }
     a->length--;

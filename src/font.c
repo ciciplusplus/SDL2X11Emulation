@@ -208,18 +208,6 @@ Bool initFontStorage() {
 }
 
 void freeFontStorage() {
-    if (fontCache != NULL) {
-        // Clear the array and free the data
-        while (fontCache->length > 0) {
-            FontCacheEntry* entry = removeArray(fontSearchPaths, 0, False);
-            free(entry->filePath);
-            free(entry->XLFName);
-            free(entry);
-        }
-        freeArray(fontCache);
-        free(fontCache);
-        //fontSearchPaths = NULL;
-    }
     if (fontSearchPaths != NULL) {
         // Clear the array and free the data
         while (fontSearchPaths->length > 0) {
@@ -228,6 +216,18 @@ void freeFontStorage() {
         freeArray(fontSearchPaths);
         free(fontSearchPaths);
         fontSearchPaths = NULL;
+    }
+    if (fontCache != NULL) {
+        // Clear the array and free the data
+        while (fontCache->length > 0) {
+            FontCacheEntry* entry = removeArray(fontCache, 0, False);
+            free(entry->filePath);
+            free(entry->XLFName);
+            free(entry);
+        }
+        freeArray(fontCache);
+        free(fontCache);
+        fontCache = NULL;
     }
 }
 
@@ -319,7 +319,7 @@ char** XListFonts(Display* display, _Xconst char* pattern, int maxnames, int* ac
     initArray(&names, 0);
     size_t i;
     for (i = 0; i < fontCache->length; i++) {
-        char* name = fontCache->array[i];
+        char* name = ((FontCacheEntry*) fontCache->array[i])->XLFName;
         if (matchWildcard(pattern, name)) {
             insertArray(&names, name);
             if (names.length >= maxnames) break;
@@ -332,7 +332,8 @@ char** XListFonts(Display* display, _Xconst char* pattern, int maxnames, int* ac
         *actual_count_return = 0;
         return NULL;
     }
-    memcpy(list, names.array, names.length);
+    memcpy(list, names.array, sizeof(char*) * names.length);
+    freeArray(&names);
     return list;
 }
 
