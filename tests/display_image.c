@@ -42,8 +42,8 @@ void processEvent(Display *display, Window window, XImage *ximage, int width, in
     static char *tir="This is red";
     static char *tig="This is green";
     static char *tib="This is blue";
-    XEvent ev;
-    //XNextEvent(display, &ev);
+//    XEvent ev;
+//    XNextEvent(display, &ev);
 //    switch(ev.type)
 //    {
 //        case Expose:
@@ -67,7 +67,6 @@ void processEvent(Display *display, Window window, XImage *ximage, int width, in
 //        case ButtonPress:
 //            exit(0);
 //    }
-    XNextEvent(display, &ev);
 }
 
 int main(int argc, char **argv)

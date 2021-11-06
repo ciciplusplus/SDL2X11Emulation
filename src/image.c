@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "X11/Xlib.h"
 #include "errors.h"
 #include "drawing.h"
@@ -5,6 +6,7 @@
 #include "window.h"
 #include "display.h"
 #include "gc.h"
+#include "colors.h"
 
 // Inspired by https://github.com/csulmone/X11/blob/59029dc09211926a5c95ff1dd2b828574fefcde6/libX11-1.5.0/src/ImUtil.c
 
@@ -30,6 +32,7 @@ XImage* XCreateImage(Display* display, Visual* visual, unsigned int depth, int f
     image->bitmap_bit_order = LSBFirst;
     #endif
     image->depth = depth;
+    image->bitmap_pad = bitmap_pad;
     image->bytes_per_line = bytes_per_line;
     if (format != ZPixmap) {
         image->bits_per_pixel = 1;
@@ -43,6 +46,10 @@ XImage* XCreateImage(Display* display, Visual* visual, unsigned int depth, int f
         } else {
             image->bits_per_pixel = 32;
         }
+    }
+    if (bytes_per_line == 0) {
+        image->bytes_per_line = width * image->bits_per_pixel / 8;
+        assert(image->bytes_per_line > 0);
     }
 
     XInitImage(image);
@@ -134,12 +141,13 @@ int XPutImage(Display* display, Drawable drawable, GC gc, XImage* image, int src
         handleError(0, display, drawable, 0, BadDrawable, 0);
         return -1;
     }
-    SDL_Surface *surface = getRenderSurface(renderer);
 
-    SDL_RenderClear(renderer);
-    SDL_RenderFillRect(renderer, NULL);
+    Uint32* data = malloc(sizeof(Uint32) * width * height);
+    if (data == NULL) {
+        handleOutOfMemory(0, display, 0, 0);
+        return -1;
+    }
 
-    LOCK_SURFACE(surface);
     unsigned int x, y;
     if (image->format == XYBitmap && 0) {
         GraphicContext* graphicContext = GET_GC(gc);
@@ -149,19 +157,37 @@ int XPutImage(Display* display, Drawable drawable, GC gc, XImage* image, int src
                 if (XGetPixel(image, src_x + x, src_y + y)) {
                     color = graphicContext->foreground;
                 }
-                putPixel(surface, dest_x + x, dest_y + y, color);
+                //putPixel(surface, dest_x + x, dest_y + y, color);
+                WARN_UNIMPLEMENTED;
             }
         }
     } else {
-        for (x = 0; x < width; x++) {
-            for (y = 0; y < height; y++) {
+        for (y = 0; y < height; y++) {
+            for (x = 0; x < width; x++) {
                 unsigned long color = XGetPixel(image, src_x + x, src_y + y);
 //                LOG("%s: %lu (%ld, %ld, %ld)\n", __func__, color, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF);
-                putPixel(surface, dest_x + x, dest_y + y, XGetPixel(image, src_x + x, src_y + y));
+                //putPixel(surface, dest_x + x, dest_y + y, XGetPixel(image, src_x + x, src_y + y));
+
+                data[y * width + x] = GET_RED_FROM_COLOR(color) << 24 | GET_GREEN_FROM_COLOR(color) << 16 | GET_BLUE_FROM_COLOR(color) << 8 | GET_ALPHA_FROM_COLOR(color);
             }
         }
     }
-    UNLOCK_SURFACE(surface);
+
+    SDL_RenderClear(renderer);
+    SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, width, height);
+    if (texture == NULL) {
+        LOG("SDL_CreateTexture failed: %s\n", SDL_GetError());
+        return -1;
+    }
+    if (SDL_UpdateTexture(texture, NULL, data, width * sizeof(Uint32)) < 0)
+        printf("Update texture failed %s", SDL_GetError());
+    SDL_Rect dst = {dest_x, dest_y, width, height};
+    if (SDL_RenderCopy(renderer, texture, NULL, &dst) < 0) {
+        LOG("SDL_RenderCopy failed: %s\n", SDL_GetError());
+        return -1;
+    }
+    SDL_DestroyTexture(texture);
+    free(data);
     SDL_RenderPresent(renderer);
     return 1;
 }
