@@ -6,8 +6,6 @@
 
 Window XGetSelectionOwner( register Display *dpy, Atom selection) { LOG("CALL XGetSelectionOwner\n"); }
 
-Status XInternAtoms ( Display *dpy, char **names, int count, Bool onlyIfExists, Atom *atoms_return) { LOG("CALL XInternAtoms\n"); }
-
 void XSetTextProperty ( Display *dpy, Window w, XTextProperty *tp, Atom property) { LOG("CALL XSetTextProperty\n"); }
 
 void XSetWMName ( Display *dpy, Window w, XTextProperty *tp) { LOG("CALL XSetWMName\n"); }
@@ -79,8 +77,6 @@ int XFindContext(Display *display, XID rid, XContext context, XPointer *data) { 
 int XDeleteContext(Display *display, XID rid, XContext context) { LOG("CALL XDeleteContext\n");  return -1; }
 
 int XGetScreenSaver( register Display *dpy, /* the following are return only vars */ int *timeout, int *interval, int *prefer_blanking, int *allow_exp) /*boolean */ { LOG("CALL XGetScreenSaver\n");  return -1; }
-
-Status XGetAtomNames ( Display *dpy, Atom *atoms, int count, char **names_return) { LOG("CALL XGetAtomNames\n"); }
 
 Bool XQueryExtension( register Display *dpy, _Xconst char *name, int *major_opcode, /* RETURN */ int *first_event, /* RETURN */ int *first_error) /* RETURN */ { LOG("CALL XQueryExtension\n");  return False; }
 

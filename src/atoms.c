@@ -75,6 +75,18 @@ char* XGetAtomName(Display* display, Atom atom) {
     return atomName;
 }
 
+Status XGetAtomNames(Display *dpy, Atom *atoms, int count, char **names_return) {
+    // https://tronche.com/gui/x/xlib/window-information/XGetAtomNames.html
+    // This function returns a nonzero status if names are returned for all of the atoms; otherwise, it returns zero.
+    int returned_names = 0;
+    for (int i = 0; i < count; ++i) {
+        char *name = XGetAtomName(dpy, atoms[i]);
+        if (name != NULL) returned_names++;
+        names_return[i] = name;
+    }
+    return returned_names == count ? 1 : 0;
+}
+
 Atom _internAtom(const char* atomName, Bool only_if_exists, Bool* outOfMemory) {
     if (outOfMemory != NULL) *outOfMemory = False;
     AtomStruct* atomStruct = getAtomStructByName(atomName);
@@ -135,4 +147,15 @@ Atom XInternAtom(Display* display, _Xconst char* atom_name, Bool only_if_exists)
         handleOutOfMemory(0, display, 0, 0);
     }
     return result;
+}
+
+Status XInternAtoms (Display *dpy, char **names, int count, Bool onlyIfExists, Atom *atoms_return) {
+    // This function returns a nonzero status if atoms are returned for all of the names; otherwise, it returns zero.
+    int returned_atoms = 0;
+    for (int i = 0; i < count; ++i) {
+        Atom atom = XInternAtom(dpy, names[i], onlyIfExists);
+        if (atom != None) returned_atoms++;
+        atoms_return[i] = atom;
+    }
+    return returned_atoms == count ? 1 : 0;
 }

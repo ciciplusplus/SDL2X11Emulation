@@ -126,3 +126,15 @@ target_link_libraries(display-image sdl2X11Emulation)
 
 add_executable(display-image-x11 tests/display_image.c)
 target_link_libraries(display-image-x11 X11)
+
+add_executable(intern-atoms tests/intern_atoms.c)
+target_link_libraries(intern-atoms sdl2X11Emulation)
+
+add_executable(intern-atoms-x11 tests/intern_atoms.c)
+target_link_libraries(intern-atoms-x11 X11)
+
+add_executable(get-atoms tests/get_atoms.c)
+target_link_libraries(get-atoms sdl2X11Emulation)
+
+add_executable(get-atoms-x11 tests/get_atoms.c)
+target_link_libraries(get-atoms-x11 X11)
