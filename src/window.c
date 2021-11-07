@@ -77,7 +77,7 @@ Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int
                                                          visualClass == StaticGray ||
                                                          visualClass == StaticColor ||
                                                          visualClass == TrueColor ?
-                                                         AllocAll : AllocNone);
+                                                         AllocNone : AllocAll);
     SET_X_SERVER_REQUEST(display, X_CreateWindow);
     if (windowStruct->colormap == None) {
         LOG("Out of memory: Could not allocate the window colormap in XCreateWindow!\n");

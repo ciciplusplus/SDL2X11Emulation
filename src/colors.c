@@ -46,7 +46,7 @@ Colormap XCreateColormap(Display* display, Window window, Visual* visual, int al
 //    }
     Colormap colormap;
     if (visualClass == StaticGray || visualClass == StaticColor || visualClass == TrueColor) {
-        if (allocate == AllocAll) {
+        if (allocate == AllocNone) {
 //            if (visualClass == StaticGray) {
 //                for (i = 0; i < visual->map_entries; i++) {
 //                    *(colormap->colors + i) = uLongToColorFromVisual(visual, 0x000000FF & i);
@@ -59,7 +59,7 @@ Colormap XCreateColormap(Display* display, Window window, Visual* visual, int al
         } else {
 //            free(colormap);
             fprintf(stderr, "Bad parameter: Got StaticGray, StaticColor or TrueColor but allocate "
-                            "is not AllocAll in XCreateColormap!\n");
+                            "is not AllocNone in XCreateColormap!\n");
             handleError(0, display, None, 0, BadMatch, 0);
             return None;
         }

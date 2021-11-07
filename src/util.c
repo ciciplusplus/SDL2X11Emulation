@@ -131,6 +131,9 @@ Bool matchWildcard(const char* wildcard, const char* string) {
 
 int XFree(void *data) {
     // https://tronche.com/gui/x/xlib/display/XFree.html
+    // if (data != NULL) {
+    //     free(data);
+    // }
     WARN_UNIMPLEMENTED;
     return 1;
 }

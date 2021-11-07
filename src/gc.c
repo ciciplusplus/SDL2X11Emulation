@@ -298,7 +298,7 @@ int XSetDashes(Display* display, GC gc, int dash_offset, _Xconst char dash_list[
 
 int XSetClipMask(Display* display, GC gc, Pixmap pixmap) {
     // http://www.net.uom.gr/Books/Manuals/xlib/GC/convenience-functions/XSetClipMask.html
-    TYPE_CHECK(pixmap, PIXMAP, display, 0);
+    if (pixmap != None) TYPE_CHECK(pixmap, PIXMAP, display, 0);
     GraphicContext* graphicContext = GET_GC(gc);
     if (graphicContext->clipMask != None) {XFreePixmap(display, graphicContext->clipMask);}
     SET_X_SERVER_REQUEST(display, X_ChangeGC);

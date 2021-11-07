@@ -16,6 +16,7 @@
 /* include some silly stuff */
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 /* here are our X variables */
 Display *dis;
@@ -103,6 +104,14 @@ void init_x() {
 //        //return -1;
 //        exit(-1);
 //    }
+
+    int count_return;
+    XPixmapFormatValues *formats = XListPixmapFormats(dis, &count_return);
+    printf("Found pixmap formats: %d\n", count_return);
+    assert(count_return > 0);
+    for (int i = 0; i < count_return; ++i) {
+        printf("depth: %d, bpp: %d, pad: %d\n", formats[i].depth, formats[i].bits_per_pixel, formats[i].scanline_pad);
+    }
 
    	win=XCreateWindow(dis,DefaultRootWindow(dis),0,0,
 		320, 240, 5, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);

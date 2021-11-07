@@ -93,6 +93,8 @@ Display* XOpenDisplay(_Xconst char* display_name) {
     display->vendor = vendor;
     display->release = releaseVersion;
     display->request = X_NoOperation;
+    display->min_keycode = 8;
+    display->max_keycode = 8;
     display->display_name = (char*) display_name;
     display->byte_order = SDL_BYTEORDER == SDL_BIG_ENDIAN ? MSBFirst : LSBFirst;
     display->default_screen = 0; // TODO: Investigate here, see SDL_GetCurrentVideoDisplay();
@@ -139,7 +141,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
         screen->root = SCREEN_WINDOW;
         screen->root_visual = getDefaultVisual(screenIndex);
         // TODO: Need real values here (use from visual)
-        screen->root_depth = 64;
+        screen->root_depth = 32;
         screen->white_pixel = 0xFFFFFFFF;
         screen->black_pixel = 0x000000FF;
         screen->cmap = REAL_COLOR_COLORMAP;
