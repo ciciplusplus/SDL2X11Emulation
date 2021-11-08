@@ -56,40 +56,57 @@ int XFreePixmap(Display* display, Pixmap pixmap) {
     return 1;
 }
 
-// Pixmap XCreateBitmapFromData(Display* display, Drawable d, _Xconst char* data,
-//                              unsigned int width, unsigned int height) {
-//     // https://tronche.com/gui/x/xlib/utilities/XCreateBitmapFromData.html
-//     SET_X_SERVER_REQUEST(display, X_CreatePixmap);
-//     XID pixmap = ALLOC_XID();
-//     if (pixmap == None) {
-//         LOG("Out of memory: Could not allocate XID in %s!\n", __func__);
-//         handleOutOfMemory(0, display, 0, 0);
-//         return None;
-//     }
+ Pixmap XCreateBitmapFromData(Display* display, Drawable d, _Xconst char* data,
+                              unsigned int width, unsigned int height) {
+     // https://tronche.com/gui/x/xlib/utilities/XCreateBitmapFromData.html
+     SET_X_SERVER_REQUEST(display, X_CreatePixmap);
+     XID pixmap = ALLOC_XID();
+     if (pixmap == None) {
+         LOG("Out of memory: Could not allocate XID in %s!\n", __func__);
+         handleOutOfMemory(0, display, BadAlloc, 0);
+         return None;
+     }
 //     SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void *) data, width, height, 1,
 //                                                     (int) ceilf(width / 8.0f), 0, 0, 0, 1);
 //     if (surface == NULL) {
 //         FREE_XID(pixmap);
 //         LOG("SDL_CreateRGBSurfaceFrom failed in %s: %s\n", __func__, SDL_GetError());
-//         handleOutOfMemory(0, display, 0, 0);
+//         handleOutOfMemory(0, display, BadAlloc, 0);
 //         return None;
 //     }
-//     GPU_Image* image = GPU_CopyImageFromSurface(surface);
+
+     SDL_Renderer* renderer = NULL;
+     GET_RENDERER(d, renderer);
+     if (renderer == NULL) {
+         LOG("Failed to create renderer in %s: %s\n", __func__, SDL_GetError());
+         handleError(0, display, d, 0, BadDrawable, 0);
+         return 0;
+     }
+
+     SDL_Texture *image = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+     if (image == NULL) {
+         LOG("SDL_CreateTextureFromSurface failed in %s: %s\n", __func__, SDL_GetError());
+         FREE_XID(pixmap);
+         handleOutOfMemory(0, display, BadAlloc, 0);
+         return None;
+     }
+
+//     SDL_Texture *image = SDL_CreateTextureFromSurface(renderer, surface);
 //     SDL_FreeSurface(surface);
 //     if (image == NULL) {
-//         LOG("GPU_CreateImage failed in %s: %s\n", __func__, GPU_PopErrorCode().details);
+//         LOG("SDL_CreateTextureFromSurface failed in %s: %s\n", __func__, SDL_GetError());
 //         FREE_XID(pixmap);
-//         handleOutOfMemory(0, display, 0, 0);
+//         handleOutOfMemory(0, display, BadAlloc, 0);
 //         return None;
 //     }
-//     if (GPU_LoadTarget(image) == NULL) {
-//         LOG("GPU_LoadTarget failed in %s: %s\n", __func__, GPU_PopErrorCode().details);
-//         FREE_XID(pixmap);
-//         GPU_FreeImage(image);
-//         handleOutOfMemory(0, display, 0, 0);
-//         return None;
-//     }
-//     SET_XID_TYPE(pixmap, PIXMAP);
-//     SET_XID_VALUE(pixmap, image);
-//     return pixmap;
-// }
+     if (SDL_SetRenderTarget(renderer, image) < 0) {
+         LOG("SDL_SetRenderTarget failed in %s: %s\n", __func__, SDL_GetError());
+         FREE_XID(pixmap);
+         SDL_DestroyTexture(image);
+         handleOutOfMemory(0, display, BadAlloc, 0);
+         return None;
+     }
+     SET_XID_TYPE(pixmap, PIXMAP);
+     SET_XID_VALUE(pixmap, image);
+     return pixmap;
+ }

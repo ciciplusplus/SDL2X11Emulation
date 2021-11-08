@@ -44,10 +44,6 @@ int XSetArcMode ( register Display *dpy, register GC gc, int arc_mode) { LOG("CA
 
 int XSetFillStyle ( register Display *dpy, register GC gc, int fill_style) { LOG("CALL XSetFillStyle\n");  return -1; }
 
-int XSetGraphicsExposures ( register Display *dpy, register GC gc, Bool graphics_exposures) { LOG("CALL XSetGraphicsExposures\n");  return -1; }
-
-int XSetSubwindowMode ( register Display *dpy, register GC gc, int subwindow_mode) { LOG("CALL XSetSubwindowMode\n");  return -1; }
-
 int XSetScreenSaver( register Display *dpy, int timeout, int interval, int prefer_blank, int allow_exp) { LOG("CALL XSetScreenSaver\n");  return -1; }
 
 Cursor XCreateFontCursor( Display *dpy, unsigned int which) { LOG("CALL XCreateFontCursor\n"); }
@@ -144,7 +140,7 @@ char *XServerVendor(Display *dpy) { return (ServerVendor(dpy)); }
 
 XWMHints *XAllocWMHints (void)
 {
-    LOG("CALL XAllocWMHints\n");
+    return Xcalloc (1, sizeof (XWMHints));
 }
 
 char *
@@ -174,18 +170,10 @@ int XDrawLine ( register Display *dpy, Drawable d, GC gc, int x1, int y1, int x2
 
 int XGrabPointer( register Display *dpy, Window grab_window, Bool owner_events, unsigned int event_mask, /* CARD16 */ int pointer_mode, int keyboard_mode, Window confine_to, Cursor curs, Time time) { LOG("CALL XGrabPointer\n");  return -1; }
 
-Pixmap XCreateBitmapFromData( Display *display, Drawable d, _Xconst char *data, unsigned int width, unsigned int height) { LOG("CALL XCreateBitmapFromData\n"); }
-
 Bool XQueryPointer( register Display *dpy, Window w, Window *root, Window *child, int *root_x, int *root_y, int *win_x, int *win_y, unsigned int *mask) { LOG("CALL XQueryPointer\n");  return False; }
-
-int XDefineCursor ( register Display *dpy, Window w, Cursor cursor) { LOG("CALL XDefineCursor\n");  return -1; }
-
-int XFreeCursor( register Display *dpy, Cursor cursor) { LOG("CALL XFreeCursor\n");  return -1; }
 
 int XResetScreenSaver(register Display *dpy) { LOG("CALL XResetScreenSaver\n");  return -1; }
 
 int XUngrabPointer( register Display *dpy, Time time) { LOG("CALL XUngrabPointer\n");  return -1; }
-
-Cursor XCreatePixmapCursor( register Display *dpy, Pixmap source, Pixmap mask, XColor *foreground, XColor *background, unsigned int x, unsigned int y) { LOG("CALL XCreatePixmapCursor\n"); }
 
 int XFillRectangle( register Display *dpy, Drawable d, GC gc, int x, int y, /* INT16 */ unsigned int width, unsigned int height) /* CARD16 */ { LOG("CALL XFillRectangle\n");  return -1; }

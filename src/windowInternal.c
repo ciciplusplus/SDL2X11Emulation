@@ -75,7 +75,7 @@ Bool initScreenWindow(Display* display) {
                                                        DEFAULT_ALPHA_MASK);
         window->sdlRenderer = SDL_CreateSoftwareRenderer(sdlSurface);
         if (window->sdlRenderer == NULL) {
-            fprintf(stderr, "Creating the main renderer failed: %s\n", SDL_GetError());
+            LOG("Creating the main renderer failed: %s\n", SDL_GetError());
             SDL_DestroyWindow(window->sdlWindow);
             window->sdlWindow = NULL;
             FREE_XID(SCREEN_WINDOW);

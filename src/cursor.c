@@ -13,7 +13,7 @@ typedef struct {
     int hotspot_x, hotspot_y;
 } Cursor_;
 
-Cursor createPixmapCursor(Display* display, GPU_Image* source, GPU_Image* mask,
+Cursor createPixmapCursor(Display* display, SDL_Texture* source, SDL_Texture* mask,
                           _Xconst XColor* foreground_color, _Xconst XColor* background_color,
                           unsigned int x, unsigned int y) {
 //    if (x > source->w || y > source->h) {
@@ -73,11 +73,11 @@ Cursor XCreatePixmapCursor(Display* display, Pixmap source, Pixmap mask, XColor*
     // https://tronche.com/gui/x/xlib/pixmap-and-cursor/XCreatePixmapCursor.html
     SET_X_SERVER_REQUEST(display, X_CreateCursor);
     TYPE_CHECK(source, PIXMAP, display, None);
-    GPU_Image* sourcePixmap = GET_PIXMAP_IMAGE(source);
-    GPU_Image* maskPixmap = NULL;
+    SDL_Texture* sourcePixmap = GET_PIXMAP_TEXTURE(source);
+    SDL_Texture* maskPixmap = NULL;
     if (mask != None) {
         TYPE_CHECK(mask, PIXMAP, display, None);
-        maskPixmap = GET_PIXMAP_IMAGE(mask);
+        maskPixmap = GET_PIXMAP_TEXTURE(mask);
     }
     return createPixmapCursor(display, sourcePixmap, maskPixmap, foreground_color,
                               background_color, x, y);

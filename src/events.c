@@ -911,8 +911,8 @@ int XEventsQueued(Display *display, int mode) {
 
 int XFlush(Display *display) {
     // https://tronche.com/gui/x/xlib/event-handling/XFlush.html
-//    SET_X_SERVER_REQUEST(display, XCB_);
-//    SDL_PumpEvents(); // TODO: This locks up the main thread
+    //SET_X_SERVER_REQUEST(display, XCB_);
+    SDL_PumpEvents(); // TODO: This locks up the main thread
     return 1;
 }
 

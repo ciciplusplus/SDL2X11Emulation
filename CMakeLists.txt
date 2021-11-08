@@ -75,16 +75,13 @@ add_library(sdl2X11Emulation SHARED
         include/X11/extensions/XKBsrv.h include/X11/extensions/XKBstr.h
         include/X11/keysym.h include/X11/keysymdef.h include/xbytes.h
         src/atomList.h src/atoms.c src/atoms.h src/colors.c src/colors.h
-        src/display.c src/display.h src/drawing.h src/drawing.c
+        src/cursor.c src/display.c src/display.h src/drawing.h src/drawing.c
         src/error.c src/errors.h src/events.c src/events.h src/font.c src/font.h
         src/gc.c src/gc.h src/image.c src/input.c src/input.h
         src/inputMethod.c src/inputMethod.h src/keysymlist.h src/netAtoms.h
         src/pixmap.c src/resourceTypes.h src/util.c src/util.h
         src/visual.c src/visual.h src/window.c src/window.h
         src/windowDebug.c src/windowDebug.h src/windowInternal.c src/windowInternal.h
-#        
-#         src/cursor.c
-#
 #         
 #         src/pointer.c src/region.c
 #         src/screensaver.c src/stdColors.h

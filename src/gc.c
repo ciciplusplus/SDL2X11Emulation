@@ -319,3 +319,16 @@ int XSetFont(Display* display, GC gc, Font font) {
     GET_GC(gc)->font = font;
     return 1;
 }
+
+int XSetGraphicsExposures(Display* display, GC gc, Bool graphics_exposures) {
+    (void) display;
+    GET_GC(gc)->graphicsExposures = graphics_exposures;
+    return 1;
+}
+
+int XSetSubwindowMode(Display* display, GC gc, int subwindow_mode)
+{
+    (void) display;
+    GET_GC(gc)->subWindowMode = subwindow_mode;
+    return 1;
+}
