@@ -19,7 +19,7 @@ main
 
     char* string_life = "Life is cool";
     Atom atom_life;
-    atom_life = XInternAtom (display, string_life, false );
+    atom_life = XInternAtom (display, string_life, False );
     printf ("atom_life is : %lu\n", atom_life );
 
     int num_string =3;
@@ -28,7 +28,7 @@ main
     int status = XInternAtoms (display, //The connection
                                strings, //The strings
                                num_string, // count of strings
-                               false,  // only_if_exists
+                               False,  // only_if_exists
                                atom );
     if (status == 0 ){
         fprintf (stderr, "Error: XInternAtoms \n" );

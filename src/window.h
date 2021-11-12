@@ -2,7 +2,6 @@
 #define _WINDOW_H_
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_gpu.h>
 #include "windowDebug.h"
 #include "resourceTypes.h"
 #include "util.h"

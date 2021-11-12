@@ -44,7 +44,7 @@ Array* fontSearchPaths = NULL;
 Array* fontCache = NULL;
 
 // Check if the given path points to an existing directory
-bool checkFontPath(const char* path) {
+Bool checkFontPath(const char* path) {
     if (path == NULL) return False;
     struct stat s;
     int err;

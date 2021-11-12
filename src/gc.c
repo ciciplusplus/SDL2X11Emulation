@@ -215,7 +215,7 @@ int XChangeGC(Display* display, GC gc, unsigned long valuemask, XGCValues* value
     if (HAS_VALUE(valuemask, GCDashOffset)) {graphicContext->dashOffset = values->dash_offset;}
     if (HAS_VALUE(valuemask, GCDashList)) {
         const char value[] = {values->dashes, values->dashes};
-        if (!setDashes(display, graphicContext, value, 2, true)) return 0;
+        if (!setDashes(display, graphicContext, value, 2, True)) return 0;
     }
     if (HAS_VALUE(valuemask, GCArcMode)) {graphicContext->arcMode = values->arc_mode;}
     return 1;
@@ -229,7 +229,7 @@ int XCopyGC(Display *display, GC src, unsigned long valuemask, GC dest) {
     GraphicContext* srcGraphicContext = GET_GC(src);
     gcValues.clip_mask = srcGraphicContext->clipMask;
     if (!XChangeGC(display, dest, valuemask, &gcValues)) return 0;
-    return setDashes(display, GET_GC(dest), srcGraphicContext->dashes, srcGraphicContext->numDashes, false) ? 1 : 0;
+    return setDashes(display, GET_GC(dest), srcGraphicContext->dashes, srcGraphicContext->numDashes, False) ? 1 : 0;
 }
 
 Status XGetGCValues(Display* display, GC gc, unsigned long valuemask, XGCValues* values_return) {
@@ -291,7 +291,7 @@ int XSetDashes(Display* display, GC gc, int dash_offset, _Xconst char dash_list[
         return 0;
     }
     GraphicContext* graphicContext = GET_GC(gc);
-    if (!setDashes(display, graphicContext, dash_list, (size_t) n, true)) return 0;
+    if (!setDashes(display, graphicContext, dash_list, (size_t) n, True)) return 0;
     graphicContext->dashOffset = dash_offset;
     return 1;
 }

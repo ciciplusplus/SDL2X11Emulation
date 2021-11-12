@@ -13,7 +13,6 @@
 #include "atoms.h"
 #include "visual.h"
 #include "font.h"
-#include <SDL2/SDL_gpu.h>
 #include <X11/X.h>
 #include <X11/Xutil.h>
 

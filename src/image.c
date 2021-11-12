@@ -91,7 +91,7 @@ int _putPixel(XImage* image, int x, int y, unsigned long pixel) {
 
 unsigned long _getPixel(XImage* image, int x, int y) {
     // https://tronche.com/gui/x/xlib/utilities/XGetPixel.html
-    LOG("%s from %p: x = %d, y = %d\n", __func__, image, x, y);
+    //LOG("%s from %p: x = %d, y = %d\n", __func__, image, x, y);
     if (image->data == NULL) {
         LOG("Invalid argument: Got image with NULL data in XGetPixel\n");
         return 0; // TODO: throw error
