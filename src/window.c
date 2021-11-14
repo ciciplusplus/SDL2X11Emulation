@@ -35,6 +35,7 @@ int XDestroyWindow(Display* display, Window window) {
 Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int width,
                      unsigned int height, unsigned int border_width, int depth, unsigned int clazz,
                      Visual* visual, unsigned long valueMask, XSetWindowAttributes* attributes) {
+    LOG("!!! XCreateWindow\n");
     // https://tronche.com/gui/x/xlib/window/XCreateWindow.html
     SET_X_SERVER_REQUEST(display, X_CreateWindow);
     TYPE_CHECK(parent, WINDOW, display, None);
@@ -93,6 +94,7 @@ Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int
     if (valueMask != 0) {
         XChangeWindowAttributes(display, windowID, valueMask, attributes);
     }
+    //XMapWindow(display, windowID);
     return windowID;
 }
 
@@ -234,6 +236,11 @@ int XMapWindow(Display* display, Window window) {
     }
     postEvent(display, window, MapNotify);
     mapRequestedChildren(display, window);
+
+    WindowStruct* windowStruct = GET_WINDOW_STRUCT(window);
+    SDL_Rect exposeRect = {windowStruct->x, windowStruct->y, windowStruct->w, windowStruct->h};
+    postExposeEvent(display, window, &exposeRect, 1);
+
     #ifdef DEBUG_WINDOWS
     printWindowsHierarchy();
     #endif

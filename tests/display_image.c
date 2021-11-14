@@ -42,11 +42,11 @@ void processEvent(Display *display, Window window, XImage *ximage, int width, in
     static char *tir="This is red";
     static char *tig="This is green";
     static char *tib="This is blue";
-//    XEvent ev;
-//    XNextEvent(display, &ev);
-//    switch(ev.type)
-//    {
-//        case Expose:
+    XEvent ev;
+    XNextEvent(display, &ev);
+    switch(ev.type)
+    {
+        case Expose:
             XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0, width, height);
             XSetForeground(display, DefaultGC(display, 0), 0x00ff0000); // red
             XDrawString(display, window, DefaultGC(display, 0), 32,     32,     tir, strlen(tir));
@@ -63,16 +63,16 @@ void processEvent(Display *display, Window window, XImage *ximage, int width, in
             XDrawString(display, window, DefaultGC(display, 0), 32+width/2, 72,     tib, strlen(tib));
             XDrawString(display, window, DefaultGC(display, 0), 32+width/2, 72+height/2, tib, strlen(tib));
             XDrawString(display, window, DefaultGC(display, 0), 32,     72+height/2, tib, strlen(tib));
-//            break;
-//        case ButtonPress:
-//            exit(0);
-//    }
+            break;
+        case ButtonPress:
+            exit(0);
+    }
 }
 
 int main(int argc, char **argv)
 {
     XImage *ximage;
-    int width=320, height=240;
+    int width=320, height=320;
     Display *display=XOpenDisplay(NULL);
     Visual *visual=DefaultVisual(display, 0);
     //Window window=XCreateSimpleWindow(display, RootWindow(display, 0), 0, 0, width, height, 1, 0, 0);

@@ -135,3 +135,9 @@ target_link_libraries(get-atoms sdl2X11Emulation)
 
 add_executable(get-atoms-x11 tests/get_atoms.c)
 target_link_libraries(get-atoms-x11 X11)
+
+add_executable(window-create tests/window_create.c)
+target_link_libraries(window-create sdl2X11Emulation)
+
+add_executable(window-create-x11 tests/window_create.c)
+target_link_libraries(window-create-x11 X11)

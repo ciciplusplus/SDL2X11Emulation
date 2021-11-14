@@ -36,7 +36,7 @@ void XLockDisplay( register Display* dpy) { LOG("CALL XLockDisplay\n"); }
 
 void XUnlockDisplay( register Display* dpy) { LOG("CALL XUnlockDisplay\n"); }
 
-Bool XCheckTypedWindowEvent ( register Display *dpy, Window w, /* Selected window. */ int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { LOG("CALL XCheckTypedWindowEvent\n");  return False; }
+Bool XCheckTypedWindowEvent ( register Display *dpy, Window w, /* Selected window. */ int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { /* LOG("CALL XCheckTypedWindowEvent\n"); */  return False; }
 
 int XSetFunction ( register Display *dpy, GC gc, int function) { LOG("CALL XSetFunction\n");  return -1; }
 
@@ -123,7 +123,7 @@ Bool XCheckIfEvent (
 			  char*				/* arg */
 			  ),		/* function to call */
 	char *arg)
-{ LOG("CALL XCheckIfEvent\n");  return False; }
+{ /* LOG("CALL XCheckIfEvent\n"); */ return False; }
 
 KeySym *
 XGetKeyboardMapping (Display *dpy,
@@ -175,5 +175,3 @@ Bool XQueryPointer( register Display *dpy, Window w, Window *root, Window *child
 int XResetScreenSaver(register Display *dpy) { LOG("CALL XResetScreenSaver\n");  return -1; }
 
 int XUngrabPointer( register Display *dpy, Time time) { LOG("CALL XUngrabPointer\n");  return -1; }
-
-int XFillRectangle( register Display *dpy, Drawable d, GC gc, int x, int y, /* INT16 */ unsigned int width, unsigned int height) /* CARD16 */ { LOG("CALL XFillRectangle\n");  return -1; }

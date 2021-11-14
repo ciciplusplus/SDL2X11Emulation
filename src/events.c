@@ -912,7 +912,7 @@ int XEventsQueued(Display *display, int mode) {
 int XFlush(Display *display) {
     // https://tronche.com/gui/x/xlib/event-handling/XFlush.html
     //SET_X_SERVER_REQUEST(display, XCB_);
-    SDL_PumpEvents(); // TODO: This locks up the main thread
+    //SDL_PumpEvents(); // TODO: This locks up the main thread
     return 1;
 }
 
@@ -978,7 +978,7 @@ Bool postEvent(Display* display, Window eventWindow, unsigned int eventId, ...) 
             break;
         }
         case Expose: {
-            if (!HAS_EVENT_MASK(eventWindow, ExposureMask) || IS_INPUT_ONLY(eventWindow)
+            if (/* !HAS_EVENT_MASK(eventWindow, ExposureMask) || */ IS_INPUT_ONLY(eventWindow)
                 || GET_WINDOW_STRUCT(eventWindow)->mapState != Mapped) SKIP
             XExposeEvent* event = malloc(sizeof(XExposeEvent));
             if (event == NULL) break;

@@ -146,5 +146,7 @@ int XDefineCursor(Display* display, Window window, Cursor cursor) {
         // https://wiki.libsdl.org/SDL_CreateCursor and https://wiki.libsdl.org/SDL_SetCursor
         LOG("Warning: Displaying of custom cursor currently not implemented.\n");
     }
+    // SDL_Renderer* renderer = getWindowRenderer(window);
+    // SDL_RenderPresent(renderer);
     return 1;
 }

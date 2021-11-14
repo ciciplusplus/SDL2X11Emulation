@@ -339,6 +339,11 @@ int XDrawRectangle(Display *display, Drawable d, GC gc, int x, int y, unsigned i
     return 1;
 }
 
+int XFillRectangle(Display *dpy, Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height) {
+    XRectangle rect = { x, y, width, height };
+    return XFillRectangles(dpy, d, gc, &rect, 1);
+}
+
 int XFillRectangles(Display *display, Drawable d, GC gc, XRectangle *rectangles, int nrectangles) {
     // https://tronche.com/gui/x/xlib/graphics/filling-areas/XFillRectangles.html
     SET_X_SERVER_REQUEST(display, X_PolyFillRectangle);
@@ -372,7 +377,11 @@ int XFillRectangles(Display *display, Drawable d, GC gc, XRectangle *rectangles,
     if (gContext->fillStyle == FillSolid) {
         LOG("Fill_style is %s\n", "FillSolid");
         long color = gContext->foreground;
-        SDL_SetRenderDrawColor(renderer, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF, 0xFF);
+        SDL_SetRenderDrawColor(renderer,
+                               GET_RED_FROM_COLOR(color),
+                               GET_GREEN_FROM_COLOR(color),
+                               GET_BLUE_FROM_COLOR(color),
+                               GET_ALPHA_FROM_COLOR(color));
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
         if (SDL_RenderFillRects(renderer, &sdlRectangles[0], nrectangles)) {
             LOG("SDL_RenderFillRects failed in %s: %s\n", __func__, SDL_GetError());
