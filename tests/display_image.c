@@ -75,8 +75,7 @@ int main(int argc, char **argv)
     int width=320, height=320;
     Display *display=XOpenDisplay(NULL);
     Visual *visual=DefaultVisual(display, 0);
-    //Window window=XCreateSimpleWindow(display, RootWindow(display, 0), 0, 0, width, height, 1, 0, 0);
-    Window window=XCreateWindow(display, RootWindow(display, 0), 0, 0, width, height, 5, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
+    Window window=XCreateSimpleWindow(display, RootWindow(display, 0), 0, 0, width, height, 1, 0, 0);
     if(visual->class!=TrueColor)
     {
         fprintf(stderr, "Cannot handle non true color visual ...\n");

@@ -95,7 +95,7 @@ void init_x() {
    	screen=DefaultScreen(dis);
 	black=BlackPixel(dis,screen),
 	white=WhitePixel(dis, screen);
-    //win=XCreateSimpleWindow(dis,DefaultRootWindow(dis), 0, 0, 320, 240, 5, black, white);
+    win = XCreateSimpleWindow(dis, DefaultRootWindow(dis), 0, 0, 320, 240, 5, black, white);
 
 //    XVisualInfo vinfo = {0};
 //    if (!XMatchVisualInfo(dis, screen, 32, TrueColor, &vinfo)) {
@@ -112,9 +112,6 @@ void init_x() {
     for (int i = 0; i < count_return; ++i) {
         printf("depth: %d, bpp: %d, pad: %d\n", formats[i].depth, formats[i].bits_per_pixel, formats[i].scanline_pad);
     }
-
-   	win=XCreateWindow(dis,DefaultRootWindow(dis),0,0,
-		320, 240, 5, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
 
 	//XSetStandardProperties(dis,win,"Howdy","Hi",None,NULL,0,NULL);
 	XSelectInput(dis, win, ExposureMask|ButtonPressMask|KeyPressMask);

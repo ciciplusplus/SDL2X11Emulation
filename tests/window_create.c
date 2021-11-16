@@ -17,10 +17,8 @@ int main(void) {
     }
 
     s = DefaultScreen(d);
-    //w = XCreateSimpleWindow(d, RootWindow(d, s), 10, 10, 100, 100, 1,
-    //                        BlackPixel(d, s), WhitePixel(d, s));
-    w = XCreateWindow(d, DefaultRootWindow(d), 10, 10,
-                      100, 100, 1, CopyFromParent, CopyFromParent, CopyFromParent, 0, NULL);
+    w = XCreateSimpleWindow(d, RootWindow(d, s), 10, 10, 100, 100, 1,
+                            BlackPixel(d, s), WhitePixel(d, s));
     XSelectInput(d, w, ExposureMask | KeyPressMask);
     XMapWindow(d, w);
 
