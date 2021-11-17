@@ -30,8 +30,6 @@ Status XAllocColorCells( register Display *dpy, Colormap cmap, Bool contig, unsi
 
 int XQueryColor( register Display *dpy, Colormap cmap, XColor *def) /* RETURN */ { LOG("CALL XQueryColor\n");  return -1; }
 
-int XSetBackground ( register Display *dpy, GC gc, unsigned long background) /* CARD32 */ { LOG("CALL XSetBackground\n");  return -1; }
-
 void XLockDisplay( register Display* dpy) { LOG("CALL XLockDisplay\n"); }
 
 void XUnlockDisplay( register Display* dpy) { LOG("CALL XUnlockDisplay\n"); }

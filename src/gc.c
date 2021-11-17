@@ -313,6 +313,12 @@ int XSetForeground(Display* display, GC gc, unsigned long foreground) {
     return 1;
 }
 
+int XSetBackground(Display *dpy, GC gc, unsigned long background) {
+    (void) dpy;
+    GET_GC(gc)->background = background;
+    return 1;
+}
+
 int XSetFont(Display* display, GC gc, Font font) {
     // http://www.net.uom.gr/Books/Manuals/xlib/GC/convenience-functions/XSetFont.html
     TYPE_CHECK(font, FONT, display, 0);
