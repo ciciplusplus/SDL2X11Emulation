@@ -1,16 +1,38 @@
 #include "X11/Xlibint.h"
 #include "X11/Xresource.h"
 #include "X11/Xutil.h"
+#include "X11/Xatom.h"
+#include "X11/Xlocale.h"
 #include <stdio.h>
 #include "util.h"
 
 Window XGetSelectionOwner( register Display *dpy, Atom selection) { LOG("CALL XGetSelectionOwner\n"); }
 
-void XSetTextProperty ( Display *dpy, Window w, XTextProperty *tp, Atom property) { LOG("CALL XSetTextProperty\n"); }
+void XSetTextProperty (
+        Display *dpy,
+        Window w,
+        XTextProperty *tp,
+        Atom property)
+{
+    XChangeProperty (dpy, w, property, tp->encoding, tp->format,
+                     PropModeReplace, tp->value, tp->nitems);
+}
 
-void XSetWMName ( Display *dpy, Window w, XTextProperty *tp) { LOG("CALL XSetWMName\n"); }
+void XSetWMName (
+        Display *dpy,
+        Window w,
+        XTextProperty *tp)
+{
+    XSetTextProperty (dpy, w, tp, XA_WM_NAME);
+}
 
-void XSetWMIconName ( Display *dpy, Window w, XTextProperty *tp) { LOG("CALL XSetWMIconName\n"); }
+void XSetWMIconName (
+        Display *dpy,
+        Window w,
+        XTextProperty *tp)
+{
+    XSetTextProperty (dpy, w, tp, XA_WM_ICON_NAME);
+}
 
 int XClearWindow ( Display* dpy, Window w) { return XClearArea(dpy, w, 0, 0, 0, 0, False); }
 
@@ -88,7 +110,139 @@ int XWindowEvent ( register Display *dpy, Window w, /* Selected window. */ long 
 
 XrmQuark XrmUniqueQuark(void) { LOG("CALL XrmUniqueQuark\n"); }
 
-void XSetWMProperties ( Display *dpy, Window w, /* window to decorate */ XTextProperty *windowName, /* name of application */ XTextProperty *iconName, /* name string for icon */ char **argv, /* command line */ int argc, /* size of command line */ XSizeHints *sizeHints, /* size hints for window in its normal state */ XWMHints *wmHints, /* miscellaneous window manager hints */ XClassHint *classHints) /* resource name and class */ { LOG("CALL XSetWMProperties\n"); }
+/* Make sure this produces the same string as DefineLocal/DefineSelf in xdm.
+ * Otherwise, Xau will not be able to find your cookies in the Xauthority file.
+ *
+ * Note: POSIX says that the ``nodename'' member of utsname does _not_ have
+ *       to have sufficient information for interfacing to the network,
+ *       and so, you may be better off using gethostname (if it exists).
+ */
+
+#if (defined(_POSIX_SOURCE) && !defined(AIXV3) && !defined(__QNX__)) || defined(hpux) || defined(SVR4)
+#define NEED_UTSNAME
+#include <sys/utsname.h>
+#else
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#endif
+
+/*
+ * _XGetHostname - similar to gethostname but allows special processing.
+ */
+int _XGetHostname (
+        char *buf,
+        int maxlen)
+{
+    int len;
+
+#ifdef NEED_UTSNAME
+    struct utsname name;
+
+    if (maxlen <= 0 || buf == NULL)
+        return 0;
+
+    uname (&name);
+    len = (int) strlen (name.nodename);
+    if (len >= maxlen) len = maxlen - 1;
+    strncpy (buf, name.nodename, (size_t) len);
+    buf[len] = '\0';
+#else
+    if (maxlen <= 0 || buf == NULL)
+	return 0;
+
+    buf[0] = '\0';
+    (void) gethostname (buf, maxlen);
+    buf [maxlen - 1] = '\0';
+    len = (int) strlen(buf);
+#endif /* NEED_UTSNAME */
+    return len;
+}
+
+/*
+ * XSetWMProperties sets the following properties:
+ *	WM_NAME		  type: TEXT		format: varies?
+ *	WM_ICON_NAME	  type: TEXT		format: varies?
+ *	WM_HINTS	  type: WM_HINTS	format: 32
+ *	WM_COMMAND	  type: TEXT		format: varies?
+ *	WM_CLIENT_MACHINE type: TEXT		format: varies?
+ *	WM_NORMAL_HINTS	  type: WM_SIZE_HINTS 	format: 32
+ *	WM_CLASS	  type: STRING/STRING	format: 8
+  *	WM_LOCALE_NAME	  type: STRING		format: 8
+ */
+
+void XSetWMProperties (
+        Display *dpy,
+        Window w,			/* window to decorate */
+        XTextProperty *windowName,	/* name of application */
+        XTextProperty *iconName,	/* name string for icon */
+        char **argv,		/* command line */
+        int argc,			/* size of command line */
+        XSizeHints *sizeHints,	/* size hints for window in its normal state */
+        XWMHints *wmHints,		/* miscellaneous window manager hints */
+        XClassHint *classHints)	/* resource name and class */
+{
+    XTextProperty textprop;
+    char hostName[256];
+    int len = _XGetHostname (hostName, sizeof hostName);
+    char *locale;
+
+    /* set names of window and icon */
+    if (windowName) XSetWMName (dpy, w, windowName);
+    if (iconName) XSetWMIconName (dpy, w, iconName);
+
+    /* set the command if given */
+    if (argv) {
+        /*
+         * for UNIX and other operating systems which use nul-terminated
+         * arrays of STRINGs.
+         */
+        XSetCommand (dpy, w, argv, argc);
+    }
+
+    /* set the name of the machine on which this application is running */
+    textprop.value = (unsigned char *) hostName;
+    textprop.encoding = XA_STRING;
+    textprop.format = 8;
+    textprop.nitems = (unsigned long) len;
+    XSetWMClientMachine (dpy, w, &textprop);
+
+    /* set hints about how geometry and window manager interaction */
+    if (sizeHints) XSetWMNormalHints (dpy, w, sizeHints);
+    if (wmHints) XSetWMHints (dpy, w, wmHints);
+    if (classHints) {
+        XClassHint tmp;
+
+        if (!classHints->res_name) {
+            tmp.res_name = getenv ("RESOURCE_NAME");
+            if (!tmp.res_name && argv && argv[0]) {
+                /*
+                 * UNIX uses /dir/subdir/.../basename; other operating
+                 * systems will have to change this.
+                 */
+                char *cp = strrchr (argv[0], '/');
+#ifdef __UNIXOS2__
+                char *os2_cp = strrchr (argv[0],'\\');
+		char *dot_cp = strrchr (argv[0],'.');
+		if (os2_cp && (os2_cp > cp)) {
+		    if(dot_cp && (dot_cp > os2_cp)) *dot_cp = '\0';
+		    cp=os2_cp;
+		}
+#endif
+                tmp.res_name = (cp ? cp + 1 : argv[0]);
+            }
+            tmp.res_class = classHints->res_class;
+            classHints = &tmp;
+        }
+        XSetClassHint (dpy, w, classHints);
+    }
+
+    locale = setlocale(LC_CTYPE, (char *)NULL);
+    if (locale)
+        XChangeProperty (dpy, w, XInternAtom(dpy, "WM_LOCALE_NAME", False),
+                         XA_STRING, 8, PropModeReplace,
+                         (unsigned char *)locale, (int) strlen(locale));
+}
 
 Status XInitThreads(void) { LOG("CALL XInitThreads\n"); }
 

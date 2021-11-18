@@ -256,11 +256,58 @@ XHostAddress* XListHosts(Display *display, int *nhosts_return, Bool *state_retur
     return host;
 }
 
+#define BOOL long
+#define SIGNEDINT long
+#define UNSIGNEDINT unsigned long
+#define RESOURCEID unsigned long
 
-int XSetWMHints(Display *display, Window w, XWMHints *wmhints) {
-    // https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/XSetWMHints.html
-    WARN_UNIMPLEMENTED;
-    return 1;
+/* this structure may be extended, but do not change the order */
+typedef struct {
+    UNSIGNEDINT flags;
+    BOOL input;				/* need to convert */
+    SIGNEDINT initialState;		/* need to cvt */
+    RESOURCEID iconPixmap;
+    RESOURCEID iconWindow;
+    SIGNEDINT  iconX;			/* need to cvt */
+    SIGNEDINT  iconY;			/* need to cvt */
+    RESOURCEID iconMask;
+    UNSIGNEDINT windowGroup;
+} xPropWMHints;
+#define NumPropWMHintsElements 9 /* number of elements in this structure */
+
+#undef BOOL
+#undef SIGNEDINT
+#undef UNSIGNEDINT
+#undef RESOURCEID
+
+int
+XSetWMHints (
+        Display *dpy,
+        Window w,
+        XWMHints *wmhints)
+{
+    xPropWMHints prop;
+    memset(&prop, 0, sizeof(prop));
+    prop.flags = wmhints->flags;
+    if (wmhints->flags & InputHint)
+        prop.input = (wmhints->input == True ? 1 : 0);
+    if (wmhints->flags & StateHint)
+        prop.initialState = wmhints->initial_state;
+    if (wmhints->flags & IconPixmapHint)
+        prop.iconPixmap = wmhints->icon_pixmap;
+    if (wmhints->flags & IconWindowHint)
+        prop.iconWindow = wmhints->icon_window;
+    if (wmhints->flags & IconPositionHint) {
+        prop.iconX = wmhints->icon_x;
+        prop.iconY = wmhints->icon_y;
+    }
+    if (wmhints->flags & IconMaskHint)
+        prop.iconMask = wmhints->icon_mask;
+    if (wmhints->flags & WindowGroupHint)
+        prop.windowGroup = wmhints->window_group;
+    return XChangeProperty (dpy, w, XA_WM_HINTS, XA_WM_HINTS, 32,
+                            PropModeReplace, (unsigned char *) &prop,
+                            NumPropWMHintsElements);
 }
 
 int XSetCommand(Display *display, Window w, char **argv, int argc) {
@@ -269,9 +316,95 @@ int XSetCommand(Display *display, Window w, char **argv, int argc) {
     return 1;
 }
 
-void XSetWMNormalHints(Display *display, Window w, XSizeHints *hints) {
-    // https://tronche.com/gui/x/xlib/ICC/client-to-window-manager/XSetWMNormalHints.html
-    WARN_UNIMPLEMENTED;
+#define BOOL long
+#define SIGNEDINT long
+#define UNSIGNEDINT unsigned long
+#define RESOURCEID unsigned long
+
+/* this structure may be extended, but do not change the order */
+typedef struct {
+    UNSIGNEDINT flags;
+    SIGNEDINT x, y, width, height;	/* need to cvt; only for pre-ICCCM */
+    SIGNEDINT minWidth, minHeight;	/* need to cvt */
+    SIGNEDINT maxWidth, maxHeight;	/* need to cvt */
+    SIGNEDINT widthInc, heightInc;	/* need to cvt */
+    SIGNEDINT minAspectX, minAspectY;	/* need to cvt */
+    SIGNEDINT maxAspectX, maxAspectY;	/* need to cvt */
+    SIGNEDINT baseWidth,baseHeight;	/* need to cvt; ICCCM version 1 */
+    SIGNEDINT winGravity;		/* need to cvt; ICCCM version 1 */
+} xPropSizeHints;
+#define OldNumPropSizeElements 15	/* pre-ICCCM */
+#define NumPropSizeElements 18		/* ICCCM version 1 */
+
+#undef BOOL
+#undef SIGNEDINT
+#undef UNSIGNEDINT
+#undef RESOURCEID
+
+void XSetWMSizeHints (
+        Display *dpy,
+        Window w,
+        XSizeHints *hints,
+        Atom prop)
+{
+    xPropSizeHints data;
+
+    memset(&data, 0, sizeof(data));
+    data.flags = (hints->flags &
+                  (USPosition|USSize|PPosition|PSize|PMinSize|PMaxSize|
+                   PResizeInc|PAspect|PBaseSize|PWinGravity));
+
+    /*
+     * The x, y, width, and height fields are obsolete; but, applications
+     * that want to work with old window managers might set them.
+     */
+    if (hints->flags & (USPosition|PPosition)) {
+        data.x = hints->x;
+        data.y = hints->y;
+    }
+    if (hints->flags & (USSize|PSize)) {
+        data.width = hints->width;
+        data.height = hints->height;
+    }
+
+    if (hints->flags & PMinSize) {
+        data.minWidth = hints->min_width;
+        data.minHeight = hints->min_height;
+    }
+    if (hints->flags & PMaxSize) {
+        data.maxWidth  = hints->max_width;
+        data.maxHeight = hints->max_height;
+    }
+    if (hints->flags & PResizeInc) {
+        data.widthInc = hints->width_inc;
+        data.heightInc = hints->height_inc;
+    }
+    if (hints->flags & PAspect) {
+        data.minAspectX = hints->min_aspect.x;
+        data.minAspectY = hints->min_aspect.y;
+        data.maxAspectX = hints->max_aspect.x;
+        data.maxAspectY = hints->max_aspect.y;
+    }
+    if (hints->flags & PBaseSize) {
+        data.baseWidth = hints->base_width;
+        data.baseHeight = hints->base_height;
+    }
+    if (hints->flags & PWinGravity) {
+        data.winGravity = hints->win_gravity;
+    }
+
+    XChangeProperty (dpy, w, prop, XA_WM_SIZE_HINTS, 32,
+                     PropModeReplace, (unsigned char *) &data,
+                     NumPropSizeElements);
+}
+
+
+void XSetWMNormalHints (
+        Display *dpy,
+        Window w,
+        XSizeHints *hints)
+{
+    XSetWMSizeHints (dpy, w, hints, XA_WM_NORMAL_HINTS);
 }
 
 int XSetClassHint(Display *display, Window w, XClassHint *class_hints) {
@@ -301,7 +434,10 @@ Status XStringListToTextProperty(char **list, int count, XTextProperty *text_pro
     return 1;
 }
 
-void XSetWMClientMachine(Display *display, Window w, XTextProperty *text_prop) {
-    // https://tronche.com/gui/x/xlib/ICC/client-to-session-manager/XSetWMClientMachine.html
-    WARN_UNIMPLEMENTED;
+void XSetWMClientMachine (
+        Display *dpy,
+        Window w,
+        XTextProperty *tp)
+{
+    XSetTextProperty (dpy, w, tp, XA_WM_CLIENT_MACHINE);
 }
