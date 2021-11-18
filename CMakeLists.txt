@@ -147,3 +147,9 @@ target_link_libraries(wm-hints sdl2X11Emulation)
 
 add_executable(wm-hints-x11 tests/wm-hints.c)
 target_link_libraries(wm-hints-x11 X11)
+
+add_executable(context tests/context.cpp)
+target_link_libraries(context sdl2X11Emulation)
+
+add_executable(context-x11 tests/context.cpp)
+target_link_libraries(context-x11 X11)
