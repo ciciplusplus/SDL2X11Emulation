@@ -90,7 +90,7 @@ Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int
     if (valueMask != 0) {
         XChangeWindowAttributes(display, windowID, valueMask, attributes);
     }
-    XMapWindow(display, windowID);
+    //XMapWindow(display, windowID);
     return windowID;
 }
 
@@ -195,6 +195,7 @@ int XMapWindow(Display* display, Window window) {
                     SDL_DestroyRenderer(newRenderer);
                     return 0;
                 }
+                //SDL_RenderPresent(newRenderer);
                 SDL_DestroyTexture(windowTexture);
                 SDL_DestroyTexture(oldWindowTexture);
                 windowStruct->sdlRenderer = newRenderer;
@@ -237,7 +238,7 @@ int XMapWindow(Display* display, Window window) {
     SDL_Rect exposeRect = {windowStruct->x, windowStruct->y, windowStruct->w, windowStruct->h};
     postExposeEvent(display, window, &exposeRect, 1);
 
-    SDL_UpdateWindowSurface(GET_WINDOW_STRUCT(window)->sdlWindow);
+    //SDL_UpdateWindowSurface(GET_WINDOW_STRUCT(window)->sdlWindow);
 
     #ifdef DEBUG_WINDOWS
     printWindowsHierarchy();

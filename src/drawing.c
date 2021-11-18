@@ -20,8 +20,8 @@ void drawWindowDataToScreen() {
     }
     #ifdef DEBUG_WINDOWS
     printWindowsHierarchy();
-//    drawDebugWindowSurfacePlanes();
-//    drawWindowDebugView();
+    //drawDebugWindowSurfacePlanes();
+    //drawWindowDebugView();
     #endif
 }
 

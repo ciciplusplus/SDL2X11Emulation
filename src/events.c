@@ -9,6 +9,7 @@
 #include "display.h"
 #include "atoms.h"
 #include "util.h"
+#include "drawing.h"
 
 int eventFds[2];
 #define READ_EVENT_FD eventFds[0]
@@ -913,6 +914,7 @@ int XFlush(Display *display) {
     // https://tronche.com/gui/x/xlib/event-handling/XFlush.html
     //SET_X_SERVER_REQUEST(display, XCB_);
     SDL_PumpEvents(); // TODO: This locks up the main thread
+    drawWindowDataToScreen();
     return 1;
 }
 

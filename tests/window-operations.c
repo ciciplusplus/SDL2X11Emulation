@@ -41,9 +41,6 @@ create_simple_window(Display* display, int width, int height, int x, int y)
     /* make the window actually appear on the screen. */
     XMapWindow(display, win);
 
-    XEvent e;
-    XNextEvent(display, &e);
-
     /* flush all pending requests to the X server. */
     XFlush(display);
 
@@ -123,36 +120,38 @@ main(int argc, char* argv[])
     /* root window. Use the screen's white color as the background */
     /* color of the window. Place the new window's top-left corner */
     /* at the given 'x,y' coordinates.                             */
-    win = create_simple_window(display, win_width, win_height, 0, 0);
+    win = create_simple_window(display, win_width, win_height, 20, 20);
 
     /* allocate a new GC (graphics context) for drawing in the window. */
     gc = create_gc(display, win, 0);
     XFlush(display);
 
-    sleep(3);
+    //sleep(3);
 
     /* example of resizing a window. */
-    {
-        int i;
-
-        /* start shrinking our window in a loop. */
-        for (i=0; i<40; i++) {
-            win_width -= 3;
-            win_height -= 3;
-            XResizeWindow(display, win, win_width, win_height);
-            XFlush(display);
-            usleep(20000);
-        }
-
-        /* start shrinking our window in a loop. */
-        for (i=0; i<40; i++) {
-            win_width += 3;
-            win_height += 3;
-            XResizeWindow(display, win, win_width, win_height);
-            XFlush(display);
-            usleep(20000);
-        }
-    }
+//    {
+//        int i;
+//
+//        /* start shrinking our window in a loop. */
+//        for (i=0; i<40; i++) {
+//            win_width -= 3;
+//            win_height -= 3;
+//            if (win_height < 4 || win_width < 4) break;
+//            XResizeWindow(display, win, win_width, win_height);
+//            XFlush(display);
+//            usleep(20000);
+//        }
+//
+//        /* start shrinking our window in a loop. */
+//        for (i=0; i<40; i++) {
+//            win_width += 3;
+//            win_height += 3;
+//            if (win_width >= (display_width / 3) || win_height >= (display_height / 3)) break;
+//            XResizeWindow(display, win, win_width, win_height);
+//            XFlush(display);
+//            usleep(20000);
+//        }
+//    }
 
     sleep(1);
 
@@ -208,6 +207,7 @@ main(int argc, char* argv[])
         /* start moving the window to the left. */
         for (i=0; i<40; i++) {
             scr_x -= 3;
+            if (scr_x < 4) break;
             XMoveWindow(display, win, scr_x, scr_y);
             XFlush(display);
             usleep(20000);
@@ -232,6 +232,7 @@ main(int argc, char* argv[])
         /* start moving the window up. */
         for (i=0; i<40; i++) {
             scr_y -= 3;
+            if (scr_y < 4) break;
             XMoveWindow(display, win, scr_x, scr_y);
             XFlush(display);
             usleep(20000);
