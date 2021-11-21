@@ -86,11 +86,11 @@ Bool XUnregisterIMInstantiateCallback( Display *display, XrmDatabase rdb, char *
 
 int XSetClipRectangles ( register Display *dpy, GC gc, int clip_x_origin, int clip_y_origin, XRectangle *rectangles, int n, int ordering) { LOG("CALL XSetClipRectangles\n");  return -1; }
 
-int XSaveContext( Display *display, register XID rid, register XContext context, _Xconst char* data) { LOG("CALL XSaveContext\n");  return -1; }
+//int XSaveContext( Display *display, register XID rid, register XContext context, _Xconst char* data) { LOG("CALL XSaveContext\n");  return -1; }
 
-int XFindContext(Display *display, XID rid, XContext context, XPointer *data) { LOG("CALL XFindContext\n");  return -1; }
+//int XFindContext(Display *display, XID rid, XContext context, XPointer *data) { LOG("CALL XFindContext\n");  return -1; }
 
-int XDeleteContext(Display *display, XID rid, XContext context) { LOG("CALL XDeleteContext\n");  return -1; }
+//int XDeleteContext(Display *display, XID rid, XContext context) { LOG("CALL XDeleteContext\n");  return -1; }
 
 int XGetScreenSaver( register Display *dpy, /* the following are return only vars */ int *timeout, int *interval, int *prefer_blanking, int *allow_exp) /*boolean */ { LOG("CALL XGetScreenSaver\n");  return -1; }
 
@@ -244,7 +244,7 @@ void XSetWMProperties (
                          (unsigned char *)locale, (int) strlen(locale));
 }
 
-Status XInitThreads(void) { LOG("CALL XInitThreads\n"); }
+//Status XInitThreads(void) { LOG("CALL XInitThreads\n"); }
 
 XPixmapFormatValues *XListPixmapFormats( Display *dpy, int *count) {
     XPixmapFormatValues *formats = malloc(sizeof(XPixmapFormatValues));

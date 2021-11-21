@@ -86,6 +86,8 @@ add_library(sdl2X11Emulation SHARED
 #         src/pointer.c src/region.c
 #         src/screensaver.c src/stdColors.h
         src/missing.c
+        src/X11/locking.h src/X11/locking.c src/X11/Xprivate.h
+        src/X11/Context.c
         )
 
 # set_target_properties(sdl2X11Emulation PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
