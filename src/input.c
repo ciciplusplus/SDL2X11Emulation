@@ -1,4 +1,5 @@
 #include "input.h"
+#include "X11/Xlibint.h"
 #include "X11/Xutil.h"
 #include "X11/keysym.h"
 #include "keysymlist.h"
@@ -27,15 +28,65 @@ int XSelectInput(Display* display, Window window, long event_mask) {
     return 1;
 }
 
+KeySym *XGetKeyboardMapping(Display *display, KeyCode first_keycode, int count, int *keysyms_per_keycode) {
+    if (first_keycode < display->min_keycode) {
+        LOG("The value specified in first_keycode must be greater than or equal to min_keycode %s: %d\n", __func__, first_keycode);
+        handleError(0, display, None, 0, BadValue, 0);
+        return NULL;
+    }
+    if (first_keycode + count - 1 > display->max_keycode) {
+        LOG("The (first_keycode + keycode_count - 1) expression must be less than or equal to max_keycode %s: %d\n", __func__, first_keycode);
+        handleError(0, display, None, 0, BadValue, 0);
+        return NULL;
+    }
+
+    KeySym *mapping = malloc(count * sizeof(KeySym));
+    if (mapping == NULL) {
+        LOG("Cannot alloc mapping %s\n", __func__);
+        return NULL;
+    }
+
+    int digits = SDLK_9 - SDLK_0 + 1;
+    int chars = SDLK_z - SDLK_a + 1;
+    //int total = digits + chars + SDL_KEYCODE_TO_KEYSYM_LENGTH;
+
+    int first_keycode_idx = first_keycode - display->min_keycode;
+    for (int idx = first_keycode_idx; idx < count; idx++) {
+        if (idx < digits) {
+            mapping[idx] = XK_0 + idx;
+        } else if (idx - digits < chars) {
+            mapping[idx] = XK_a + (idx - digits);
+        } else if (idx - digits - chars < SDL_KEYCODE_TO_KEYSYM_LENGTH) {
+            mapping[idx] = SDLKeycodeToKeySym[idx - digits - chars].keysym;
+        } else {
+            mapping[idx] = NoSymbol;
+        }
+    }
+    *keysyms_per_keycode = 1;
+    return mapping;
+}
+
 KeyCode XKeysymToKeycode(Display *display, KeySym keysym) {
     // https://tronche.com/gui/x/xlib/utilities/keyboard/XKeysymToKeycode.html
 //    SET_X_SERVER_REQUEST(display, XCB_);
-    WARN_UNIMPLEMENTED;
+    if (keysym >= XK_0 && keysym <= XK_9) { // 0 - 9
+        return SDLK_0 + (keysym - XK_0);
+    } else if (keysym >= XK_a && keysym <= XK_z) { // a - z
+        return SDLK_a + (keysym - XK_a);
+    }
+    int i;
+    for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
+        if (SDLKeycodeToKeySym[i].keysym == keysym) {
+            return SDLKeycodeToKeySym[i].keycode;
+        }
+    }
+    LOG("%s: Got unimplemented keysym %lu\n", __func__, keysym);
+    return 0;
 }
 
 KeySym XLookupKeysym(XKeyEvent *key_event, int index) {
     // https://tronche.com/gui/x/xlib/utilities/keyboard/XLookupKeysym.html
-    WARN_UNIMPLEMENTED;
+    return XKeycodeToKeysym(key_event->display, key_event->keycode, index);
 }
 
 KeySym XStringToKeysym(_Xconst char* string) {
@@ -75,8 +126,8 @@ KeySym XKeycodeToKeysym(Display *display, KeyCode keycode, int index) {
 //    SET_X_SERVER_REQUEST(display, XCB_);
     if (keycode >= SDLK_0 && keycode <= SDLK_9) { // 0 - 9
         return XK_0 + (keycode - SDLK_0);
-    } else if (keycode >= SDLK_z && keycode <= SDLK_z) { // A - Z
-        return XK_A + (keycode - SDLK_a);
+    } else if (keycode >= SDLK_a && keycode <= SDLK_z) { // a - z
+        return XK_a + (keycode - SDLK_a);
     }
     int i;
     for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {

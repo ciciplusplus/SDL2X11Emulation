@@ -93,7 +93,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
     display->release = releaseVersion;
     display->request = X_NoOperation;
     display->min_keycode = 8;
-    display->max_keycode = 8;
+    display->max_keycode = 255;
     display->display_name = (char*) display_name;
     display->byte_order = SDL_BYTEORDER == SDL_BIG_ENDIAN ? MSBFirst : LSBFirst;
     display->default_screen = 0; // TODO: Investigate here, see SDL_GetCurrentVideoDisplay();

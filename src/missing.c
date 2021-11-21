@@ -277,17 +277,6 @@ Bool XCheckIfEvent (
 	char *arg)
 { /* LOG("CALL XCheckIfEvent\n"); */ return False; }
 
-KeySym *
-XGetKeyboardMapping (Display *dpy,
-#if NeedWidePrototypes
-			     unsigned int first_keycode,
-#else
-			     KeyCode first_keycode,
-#endif
-			     int count,
-			     int *keysyms_per_keycode)
-{ LOG("CALL XGetKeyboardMapping\n"); }
-
 char *XServerVendor(Display *dpy) { return (ServerVendor(dpy)); }
 
 XWMHints *XAllocWMHints (void)

@@ -155,3 +155,9 @@ target_link_libraries(context sdl2X11Emulation)
 
 add_executable(context-x11 tests/context.cpp)
 target_link_libraries(context-x11 X11)
+
+add_executable(kbd-func tests/kbd_functions.c)
+target_link_libraries(kbd-func sdl2X11Emulation)
+
+add_executable(kbd-func-x11 tests/kbd_functions.c)
+target_link_libraries(kbd-func-x11 X11)
