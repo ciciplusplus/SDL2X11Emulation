@@ -69,15 +69,21 @@ KeySym *XGetKeyboardMapping(Display *display, KeyCode first_keycode, int count, 
 KeyCode XKeysymToKeycode(Display *display, KeySym keysym) {
     // https://tronche.com/gui/x/xlib/utilities/keyboard/XKeysymToKeycode.html
 //    SET_X_SERVER_REQUEST(display, XCB_);
+    int min = display->min_keycode;
+    int digits = SDLK_9 - SDLK_0 + 1;
+    int chars = SDLK_z - SDLK_a + 1;
     if (keysym >= XK_0 && keysym <= XK_9) { // 0 - 9
-        return SDLK_0 + (keysym - XK_0);
+        //return SDLK_0 + (keysym - XK_0);
+        return min + (keysym - XK_0);
     } else if (keysym >= XK_a && keysym <= XK_z) { // a - z
-        return SDLK_a + (keysym - XK_a);
+        //return SDLK_a + (keysym - XK_a);
+        return min + digits + (keysym - XK_a);
     }
     int i;
     for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
         if (SDLKeycodeToKeySym[i].keysym == keysym) {
-            return SDLKeycodeToKeySym[i].keycode;
+            //return SDLKeycodeToKeySym[i].keycode;
+            return min + digits + chars + i;
         }
     }
     LOG("%s: Got unimplemented keysym %lu\n", __func__, keysym);
@@ -109,8 +115,14 @@ KeySym XStringToKeysym(_Xconst char* string) {
 
 char* XKeysymToString(KeySym keysym) {
     // https://tronche.com/gui/x/xlib/utilities/keyboard/XKeysymToString.html
-    if (keysym >= XK_0 && keysym <= XK_9 && keysym >= XK_a && keysym <= XK_z && keysym >= XK_A && keysym <= XK_Z) {
-        // TODO: Return char of keysym
+//    if (keysym >= XK_0 && keysym <= XK_9 && keysym >= XK_a && keysym <= XK_z && keysym >= XK_A && keysym <= XK_Z) {
+//        // TODO: Return char of keysym
+//    }
+    if (keysym >= XK_0 && keysym <= XK_9) {
+        return (char *) ('0' + (keysym - XK_0));
+    }
+    if (keysym >= XK_a && keysym <= XK_z) {
+        return (char *) ('a' + (keysym - XK_a));
     }
     int i;
     for (i = 0; i < KEY_SYM_LIST_LENGTH; i++) {
@@ -124,17 +136,23 @@ char* XKeysymToString(KeySym keysym) {
 KeySym XKeycodeToKeysym(Display *display, KeyCode keycode, int index) {
     // https://tronche.com/gui/x/xlib/utilities/keyboard/XKeycodeToKeysym.html
 //    SET_X_SERVER_REQUEST(display, XCB_);
-    if (keycode >= SDLK_0 && keycode <= SDLK_9) { // 0 - 9
-        return XK_0 + (keycode - SDLK_0);
-    } else if (keycode >= SDLK_a && keycode <= SDLK_z) { // a - z
-        return XK_a + (keycode - SDLK_a);
+    int digits = SDLK_9 - SDLK_0 + 1;
+    int chars = SDLK_z - SDLK_a + 1;
+    int min = display->min_keycode;
+    if (keycode >= min && keycode < min + digits) { // 0 - 9
+        return XK_0 + (keycode - min);
+    } else if (keycode >= min + digits && keycode < min + digits + chars) { // a - z
+        return XK_a + (keycode - min - digits);
+    } else if (keycode < min + digits + chars + SDL_KEYCODE_TO_KEYSYM_LENGTH) {
+        return SDLKeycodeToKeySym[keycode - (min + digits + chars)].keysym;
     }
-    int i;
-    for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
-        if (SDLKeycodeToKeySym[i].keycode == keycode) {
-            return SDLKeycodeToKeySym[i].keysym;
-        }
-    }
+//    int i;
+//    for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
+//        if (SDLKeycodeToKeySym[i].keycode == keycode) {
+//            return SDLKeycodeToKeySym[i].keysym;
+//            //return min + digits + chars + i;
+//        }
+//    }
     LOG("%s: Got unimplemented keycode %c\n", __func__, keycode);
     return NoSymbol;
 }

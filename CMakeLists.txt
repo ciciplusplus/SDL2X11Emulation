@@ -161,3 +161,9 @@ target_link_libraries(kbd-func sdl2X11Emulation)
 
 add_executable(kbd-func-x11 tests/kbd_functions.c)
 target_link_libraries(kbd-func-x11 X11)
+
+add_executable(kbd-func-2 tests/kbd_functions_2.c)
+target_link_libraries(kbd-func-2 sdl2X11Emulation)
+
+add_executable(kbd-func-2-x11 tests/kbd_functions_2.c)
+target_link_libraries(kbd-func-2-x11 X11)

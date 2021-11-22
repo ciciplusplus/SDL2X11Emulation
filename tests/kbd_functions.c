@@ -31,6 +31,10 @@ int main()
             if (ks != NoSymbol) {
                 printf("keycode %d offset %d keysym %s\n", i, j, XKeysymToString(ks));
                 assert(ks == XStringToKeysym(XKeysymToString(ks)));
+                if (keysyms_per_keycode == 1) {
+                    assert(ks = XKeycodeToKeysym(display, i, 0));
+                    assert(i == XKeysymToKeycode(display, ks));
+                }
             }
         }
         keymap += keysyms_per_keycode;
