@@ -124,19 +124,6 @@ xthread_t (*_Xthread_self_fn)(void) = NULL;
 
 #endif /* XTHREADS */
 
-// src/OpenDis.c
-#ifdef XTHREADS
-#include "locking.h"
-int  (*_XInitDisplayLock_fn)(Display *dpy) = NULL;
-void (*_XFreeDisplayLock_fn)(Display *dpy) = NULL;
-
-#define InitDisplayLock(d)	(_XInitDisplayLock_fn ? (*_XInitDisplayLock_fn)(d) : Success)
-#define FreeDisplayLock(d)	if (_XFreeDisplayLock_fn) (*_XFreeDisplayLock_fn)(d)
-#else
-#define InitDisplayLock(dis) Success
-#define FreeDisplayLock(dis)
-#endif /* XTHREADS */
-
 // from src/xlibi18n/lcWrap.c
 #ifdef XTHREADS
 LockInfoPtr _Xi18n_lock;

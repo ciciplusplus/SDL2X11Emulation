@@ -197,13 +197,6 @@ int XSaveContext(
         {
             LockDisplay(display);
             *pdb = db;
-            //display->free_funcs->context_db = _XFreeContextDB;
-            if (display->free_funcs == NULL) {
-                if ((display->free_funcs = Xcalloc(1, sizeof(_XFreeFuncRec))) == NULL) {
-                    //OutOfMemory (display);
-                    return XCNOMEM;
-                }
-            }
             display->free_funcs->context_db = _XFreeContextDB;
             UnlockDisplay(display);
         }

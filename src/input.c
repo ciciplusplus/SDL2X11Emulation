@@ -46,22 +46,26 @@ KeySym *XGetKeyboardMapping(Display *display, KeyCode first_keycode, int count, 
         return NULL;
     }
 
-    int digits = SDLK_9 - SDLK_0 + 1;
-    int chars = SDLK_z - SDLK_a + 1;
-    //int total = digits + chars + SDL_KEYCODE_TO_KEYSYM_LENGTH;
+    memset(mapping, NoSymbol, count * sizeof(KeySym));
 
-    int first_keycode_idx = first_keycode - display->min_keycode;
-    for (int idx = first_keycode_idx; idx < count; idx++) {
-        if (idx < digits) {
-            mapping[idx] = XK_0 + idx;
-        } else if (idx - digits < chars) {
-            mapping[idx] = XK_a + (idx - digits);
-        } else if (idx - digits - chars < SDL_KEYCODE_TO_KEYSYM_LENGTH) {
-            mapping[idx] = SDLKeycodeToKeySym[idx - digits - chars].keysym;
-        } else {
-            mapping[idx] = NoSymbol;
+    for (int i = SDLK_0; i <= SDLK_9; i++) {
+        if (first_keycode <= i && i < first_keycode + count)
+            mapping[i - display->min_keycode] = XKeycodeToKeysym(display, i, 0);
+    }
+
+    for (int i = SDLK_a; i <= SDLK_z; i++) {
+        if (first_keycode <= i && i < first_keycode + count)
+            mapping[i - display->min_keycode] = XKeycodeToKeysym(display, i, 0);
+    }
+
+    int i;
+    for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
+        KeyCode kc = SDLKeycodeToKeySym[i].keycode;
+        if (first_keycode <= kc && kc < first_keycode + count && mapping[kc - display->min_keycode] == NoSymbol) {
+            mapping[kc - display->min_keycode] = SDLKeycodeToKeySym[i].keysym;
         }
     }
+
     *keysyms_per_keycode = 1;
     return mapping;
 }

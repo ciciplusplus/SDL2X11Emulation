@@ -1,6 +1,6 @@
 #include <math.h>
 #define XLIB_ILLEGAL_ACCESS
-#include <X11/Xlib.h>
+#include "xprivatedisplay.h"
 #include "X11/Xutil.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -15,6 +15,14 @@
 #include "font.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
+
+// src/OpenDis.c
+#include "X11/locking.h"
+int  (*_XInitDisplayLock_fn)(Display *dpy) = NULL;
+void (*_XFreeDisplayLock_fn)(Display *dpy) = NULL;
+
+#define InitDisplayLock(d)	(_XInitDisplayLock_fn ? (*_XInitDisplayLock_fn)(d) : Success)
+#define FreeDisplayLock(d)	if (_XFreeDisplayLock_fn) (*_XFreeDisplayLock_fn)(d)
 
 // void __attribute__((constructor)) _init() {
 //     setenv("DISPLAY", ":0", 0);
@@ -50,7 +58,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
     setenv("DISPLAY", ":0", 0);
 
     // https://tronche.com/gui/x/xlib/display/opening.html
-    Display* display = malloc(sizeof(Display));
+    _MyXDisplay* display = malloc(sizeof(_MyXDisplay));
     if (display == NULL) {
         LOG("Out of memory: Failed to allocate memory for Display struct in XOpenDisplay!");
         return NULL;
@@ -78,6 +86,60 @@ Display* XOpenDisplay(_Xconst char* display_name) {
          }
     }
     numDisplaysOpen++;
+
+    display->keysyms		= (KeySym *) NULL;
+    display->modifiermap	= NULL;
+    display->lock_meaning	= NoSymbol;
+    display->keysyms_per_keycode = 0;
+    display->xdefaults		= (char *)NULL;
+    display->scratch_length	= 0L;
+    display->scratch_buffer	= NULL;
+    display->key_bindings	= NULL;
+//    display->ext_procs		= (_XExtension *)NULL;
+    display->ext_data		= (XExtData *)NULL;
+    display->ext_number 	= 0;
+//    display->event_vec[X_Error] = _XUnknownWireEvent;
+//    display->event_vec[X_Reply] = _XUnknownWireEvent;
+//    display->wire_vec[X_Error]  = _XUnknownNativeEvent;
+//    display->wire_vec[X_Reply]  = _XUnknownNativeEvent;
+//    for (int i = KeyPress; i < LASTEvent; i++) {
+//        display->event_vec[i] 	= _XWireToEvent;
+//        display->wire_vec[i] 	= NULL;
+//    }
+//    for (int i = LASTEvent; i < 128; i++) {
+//        display->event_vec[i] 	= _XUnknownWireEvent;
+//        display->wire_vec[i] 	= _XUnknownNativeEvent;
+//    }
+    display->resource_id	= 0;
+    display->db 		= (struct _XrmHashBucketRec *)NULL;
+    display->cursor_font	= None;
+    display->flags		= 0;
+    display->async_handlers	= NULL;
+    display->screens		= NULL;
+    display->vendor		= NULL;
+    display->buffer		= NULL;
+    display->atoms		= NULL;
+    display->error_vec		= NULL;
+    display->context_db		= NULL;
+    display->free_funcs		= NULL;
+    display->pixmap_format	= NULL;
+    display->cms.clientCmaps	= NULL;
+    display->cms.defaultCCCs	= NULL;
+    display->cms.perVisualIntensityMaps = NULL;
+    display->im_filters		= NULL;
+    display->bigreq_size	= 0;
+    display->lock		= NULL;
+    display->lock_fns		= NULL;
+    display->qfree		= NULL;
+    display->next_event_serial_num = 1;
+    display->im_fd_info		= NULL;
+    display->im_fd_length	= 0;
+    display->conn_watchers	= NULL;
+    display->watcher_count	= 0;
+    display->filedes		= NULL;
+    display->flushes		= NULL;
+    display->xcmisc_opcode	= 0;
+    display->xkb_info		= NULL;
     
     display->qlen = 0;
     int eventFd = initEventPipe(display);
@@ -109,6 +171,19 @@ Display* XOpenDisplay(_Xconst char* display_name) {
         XCloseDisplay(display);
         return NULL;
     }
+
+    /* Initialize the display lock */
+    if (InitDisplayLock(display) != 0) {
+        LOG("Failed to InitDisplayLock\n");
+        return NULL;
+    }
+
+    if ((display->free_funcs = Xcalloc(1, sizeof(_XFreeFuncRec))) == NULL) {
+        //OutOfMemory (dpy);
+        LOG("OutOfMemory free_funcs\n");
+        return NULL;
+    }
+
     int screenIndex;
     for (screenIndex = 0; screenIndex < display->nscreens; screenIndex++) {
         Screen* screen = &display->screens[screenIndex];
