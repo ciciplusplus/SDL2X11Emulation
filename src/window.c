@@ -195,6 +195,7 @@ int XMapWindow(Display* display, Window window) {
                     SDL_DestroyRenderer(newRenderer);
                     return 0;
                 }
+                //SDL_RenderPresent(newRenderer);
                 SDL_DestroyTexture(windowTexture);
                 SDL_DestroyTexture(oldWindowTexture);
                 windowStruct->sdlRenderer = newRenderer;
@@ -236,6 +237,8 @@ int XMapWindow(Display* display, Window window) {
     WindowStruct* windowStruct = GET_WINDOW_STRUCT(window);
     SDL_Rect exposeRect = {windowStruct->x, windowStruct->y, windowStruct->w, windowStruct->h};
     postExposeEvent(display, window, &exposeRect, 1);
+
+    //SDL_UpdateWindowSurface(GET_WINDOW_STRUCT(window)->sdlWindow);
 
     #ifdef DEBUG_WINDOWS
     printWindowsHierarchy();

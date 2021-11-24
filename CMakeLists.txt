@@ -144,6 +144,12 @@ target_link_libraries(window-create sdl2X11Emulation)
 add_executable(window-create-x11 tests/window_create.c)
 target_link_libraries(window-create-x11 X11)
 
+add_executable(window-operations tests/window-operations.c)
+target_link_libraries(window-operations sdl2X11Emulation)
+
+add_executable(window-operations-x11 tests/window-operations.c)
+target_link_libraries(window-operations-x11 X11)
+
 add_executable(wm-hints tests/wm-hints.c)
 target_link_libraries(wm-hints sdl2X11Emulation)
 
