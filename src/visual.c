@@ -28,7 +28,7 @@ Bool initVisuals() {
     VISUAL_LIST->red_mask = 0xFF000000;
     VISUAL_LIST->green_mask = 0x00FF0000;
     VISUAL_LIST->blue_mask = 0x0000FF00;
-    VISUAL_LIST->bits_per_rgb = sizeof(SDL_Color);
+    VISUAL_LIST->bits_per_rgb = 8; //sizeof(SDL_Color);
     // TODO: Reconsider this
     VISUAL_LIST->map_entries = 16581375 /* (255 * 255 * 255) */ ;	/* color map entries */
     return True;
@@ -64,7 +64,7 @@ void fillVisualInfo(XVisualInfo* info, Visual* visual) {
     info->red_mask = visual->red_mask;
     info->green_mask = visual->green_mask;
     info->blue_mask = visual->blue_mask;
-    info->depth = 64; // TODO
+    info->depth = 32; // TODO
     info->screen = 0; // TODO
 }
 

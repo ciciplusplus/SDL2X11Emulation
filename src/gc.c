@@ -100,44 +100,44 @@ GC XCreateGC(Display* display, Drawable d, unsigned long valuemask, XGCValues* v
         XFreeGC(display, graphicContextStruct);
         return NULL;
     }
-    if (gc->tile == None) {
-        gc->tile = XCreatePixmap(display, d, 2, 2, 32);
-        if (gc->tile == None) {
-            XFreeGC(display, graphicContextStruct);
-            return NULL;
-        }
-        SDL_Color color;
-        color.a = GET_ALPHA_FROM_COLOR(gc->foreground);
-        color.r = GET_RED_FROM_COLOR(gc->foreground);
-        color.g = GET_GREEN_FROM_COLOR(gc->foreground);
-        color.b = GET_BLUE_FROM_COLOR(gc->foreground);
-
-        SDL_Renderer* renderer = NULL;
-        GET_RENDERER(d, renderer);
-        if (renderer == NULL) {
-            return NULL;
-        }
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-        SDL_Rect rect = { .x = 0, .y = 0, .w = 2, .h = 2 };
-        SDL_RenderFillRect(renderer, &rect);
-    }
-    if (gc->stipple == None) {
-        gc->stipple = XCreatePixmap(display, d, 2, 2, 1);
-        if (gc->stipple == None) {
-            XFreeGC(display, graphicContextStruct);
-            return NULL;
-        }
-        SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
-        
-        SDL_Renderer* renderer = NULL;
-        GET_RENDERER(d, renderer);
-        if (renderer == NULL) {
-            return NULL;
-        }
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-        SDL_Rect rect = { .x = 0, .y = 0, .w = 2, .h = 2 };
-        SDL_RenderFillRect(renderer, &rect);
-    }
+//    if (gc->tile == None) {
+//        gc->tile = XCreatePixmap(display, d, 2, 2, 32);
+//        if (gc->tile == None) {
+//            XFreeGC(display, graphicContextStruct);
+//            return NULL;
+//        }
+//        SDL_Color color;
+//        color.a = GET_ALPHA_FROM_COLOR(gc->foreground);
+//        color.r = GET_RED_FROM_COLOR(gc->foreground);
+//        color.g = GET_GREEN_FROM_COLOR(gc->foreground);
+//        color.b = GET_BLUE_FROM_COLOR(gc->foreground);
+//
+//        SDL_Renderer* renderer = NULL;
+//        GET_RENDERER(d, renderer);
+//        if (renderer == NULL) {
+//            return NULL;
+//        }
+//        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+//        SDL_Rect rect = { .x = 0, .y = 0, .w = 2, .h = 2 };
+//        SDL_RenderFillRect(renderer, &rect);
+//    }
+//    if (gc->stipple == None) {
+//        gc->stipple = XCreatePixmap(display, d, 2, 2, 1);
+//        if (gc->stipple == None) {
+//            XFreeGC(display, graphicContextStruct);
+//            return NULL;
+//        }
+//        SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
+//
+//        SDL_Renderer* renderer = NULL;
+//        GET_RENDERER(d, renderer);
+//        if (renderer == NULL) {
+//            return NULL;
+//        }
+//        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+//        SDL_Rect rect = { .x = 0, .y = 0, .w = 2, .h = 2 };
+//        SDL_RenderFillRect(renderer, &rect);
+//    }
     return graphicContextStruct;
 }
 

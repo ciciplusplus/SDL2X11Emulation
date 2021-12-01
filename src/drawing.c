@@ -73,7 +73,7 @@ SDL_Renderer* getWindowRenderer(Window window) {
     GET_WINDOW_DIMS(window, w, h);
     viewPort.y = h - viewPort.y - viewPort.h;
     #endif
-    //LOG("Setting viewport to {x = %d, y = %d, w = %d, h = %d}\n", viewPort.x, viewPort.y, viewPort.w, viewPort.h);
+    LOG("Setting viewport to {x = %d, y = %d, w = %d, h = %d}\n", viewPort.x, viewPort.y, viewPort.w, viewPort.h);
     if (SDL_RenderSetViewport(renderer, &viewPort)) {
         LOG("SDL_RenderSetViewport failed in %s: %s\n", __func__, SDL_GetError());
     }
@@ -82,10 +82,10 @@ SDL_Renderer* getWindowRenderer(Window window) {
 
 SDL_Surface* getRenderSurface(SDL_Renderer* renderer) {
     SDL_Rect rect;
-    rect.x = 0;
-    rect.y = 0;
-    SDL_RenderGetLogicalSize(renderer, &rect.w, &rect.h);
-    //SDL_RenderGetViewport(renderer, &rect);
+//    rect.x = 0;
+//    rect.y = 0;
+//    SDL_RenderGetLogicalSize(renderer, &rect.w, &rect.h);
+    SDL_RenderGetViewport(renderer, &rect);
     SDL_Surface* surface = SDL_CreateRGBSurface(0, rect.w, rect.h, SDL_SURFACE_DEPTH,
                                                 DEFAULT_RED_MASK, DEFAULT_GREEN_MASK,
                                                 DEFAULT_BLUE_MASK, DEFAULT_ALPHA_MASK);

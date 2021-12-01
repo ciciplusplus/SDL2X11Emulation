@@ -42,7 +42,7 @@ Pixmap XCreatePixmap(Display* display, Drawable drawable, unsigned int width, un
     SDL_Renderer* renderer;
     GET_RENDERER(pixmap, renderer);
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderClear(renderer);
+    //SDL_RenderClear(renderer);
     return pixmap;
 }
 

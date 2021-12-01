@@ -70,7 +70,7 @@ Bool initScreenWindow(Display* display) {
 //            return False;
 //        }
 //        window->sdlRenderer = SDL_CreateRenderer(window->sdlWindow, -1, SDL_RENDERER_TARGETTEXTURE);
-        SDL_Surface* sdlSurface = SDL_CreateRGBSurface(0, 1, 1, SDL_SURFACE_DEPTH, DEFAULT_RED_MASK,
+        SDL_Surface* sdlSurface = SDL_CreateRGBSurface(0, GET_DISPLAY(display)->screens[0].width, GET_DISPLAY(display)->screens[0].height, SDL_SURFACE_DEPTH, DEFAULT_RED_MASK,
                                                        DEFAULT_GREEN_MASK, DEFAULT_BLUE_MASK,
                                                        DEFAULT_ALPHA_MASK);
         window->sdlRenderer = SDL_CreateSoftwareRenderer(sdlSurface);
@@ -355,21 +355,21 @@ Bool configureWindow(Display* display, Window window, unsigned long value_mask, 
             }
         }
         printWindowsHierarchy();
-        LOG("Resizing window %lu to (%ux%u)\n", window, width, height);
-        if (isMappedTopLevelWindow) {
-            SDL_SetWindowSize(windowStruct->sdlWindow, width, height);
-            int wOut, hOut;
-            SDL_GetWindowSize(windowStruct->sdlWindow, &wOut, &hOut);
-            windowStruct->w = (unsigned int) wOut;
-            windowStruct->h = (unsigned int) hOut;
-        } else {
-            windowStruct->w = (unsigned int) width;
-            windowStruct->h = (unsigned int) height;
-        }
-        if (oldWidth != windowStruct->w || oldHeight != windowStruct->h) {
-            resizeWindowTexture(window);
-            hasChanged = True;
-        }
+        LOG("(NOT) Resizing window %lu to (%ux%u)\n", window, width, height);
+//        if (isMappedTopLevelWindow) {
+//            SDL_SetWindowSize(windowStruct->sdlWindow, width, height);
+//            int wOut, hOut;
+//            SDL_GetWindowSize(windowStruct->sdlWindow, &wOut, &hOut);
+//            windowStruct->w = (unsigned int) wOut;
+//            windowStruct->h = (unsigned int) hOut;
+//        } else {
+//            windowStruct->w = (unsigned int) width;
+//            windowStruct->h = (unsigned int) height;
+//        }
+//        if (oldWidth != windowStruct->w || oldHeight != windowStruct->h) {
+//            resizeWindowTexture(window);
+//            hasChanged = True;
+//        }
     }
     if (!hasChanged) return True;
     if (!postEvent(display, window, ConfigureNotify)) {

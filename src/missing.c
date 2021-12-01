@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "util.h"
 
-Window XGetSelectionOwner( register Display *dpy, Atom selection) { LOG("CALL XGetSelectionOwner\n"); }
+Window XGetSelectionOwner( register Display *dpy, Atom selection) { /* LOG("CALL XGetSelectionOwner\n"); */ return dpy->screens[0].root; }
 
 void XSetTextProperty (
         Display *dpy,

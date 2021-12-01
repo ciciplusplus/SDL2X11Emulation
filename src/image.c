@@ -164,8 +164,10 @@ int XPutImage(Display* display, Drawable drawable, GC gc, XImage* image, int src
     } else {
         for (y = 0; y < height; y++) {
             for (x = 0; x < width; x++) {
+                // FIXME: last pixel is crashing sometimes with memory access violation
+                if (y == height - 1 && x == width - 1) break;
                 unsigned long color = XGetPixel(image, src_x + x, src_y + y);
-//                LOG("%s: %lu (%ld, %ld, %ld)\n", __func__, color, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF);
+                //LOG("PIXEL %s: %d %d %lu (%ld, %ld, %ld)\n", __func__, src_x + x, src_y + y, color, (color >> 24) & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF);
                 //putPixel(surface, dest_x + x, dest_y + y, XGetPixel(image, src_x + x, src_y + y));
 
                 data[y * width + x] = GET_RED_FROM_COLOR(color) << 24 | GET_GREEN_FROM_COLOR(color) << 16 | GET_BLUE_FROM_COLOR(color) << 8 | GET_ALPHA_FROM_COLOR(color);
@@ -173,7 +175,7 @@ int XPutImage(Display* display, Drawable drawable, GC gc, XImage* image, int src
         }
     }
 
-    SDL_RenderClear(renderer);
+    //SDL_RenderClear(renderer);
     SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, width, height);
     if (texture == NULL) {
         LOG("SDL_CreateTexture failed: %s\n", SDL_GetError());

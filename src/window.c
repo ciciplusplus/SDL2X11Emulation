@@ -186,6 +186,13 @@ int XMapWindow(Display* display, Window window) {
                 GET_RENDERER(window, oldWindowRenderer);
                 SDL_Surface* windowSurface = getRenderSurface(oldWindowRenderer);
                 SDL_Texture* oldWindowTexture = SDL_CreateTextureFromSurface(newRenderer, windowSurface);
+                if (oldWindowTexture == NULL) {
+                    LOG("Failed to create texture from old window surface in XMapWindow: %s\n", SDL_GetError());
+                    handleError(0, display, None, 0, BadMatch, 0);
+                    SDL_DestroyWindow(sdlWindow);
+                    SDL_DestroyRenderer(newRenderer);
+                    return 0;
+                }
                 SDL_FreeSurface(windowSurface);
                 if (SDL_RenderCopy(newRenderer, oldWindowTexture, NULL, NULL) != 0) {
                     LOG("Failed to copy window surface with renderer in XMapWindow: %s\n", SDL_GetError());

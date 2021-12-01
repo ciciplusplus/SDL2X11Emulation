@@ -277,7 +277,7 @@ int XConvertSelection(Display* display, Atom selection, Atom target, Atom proper
     // https://tronche.com/gui/x/xlib/window-information/XConvertSelection.html
     // http://www.man-online.org/page/3-XConvertSelection/
     SET_X_SERVER_REQUEST(display, X_ConvertSelection);
-    WARN_UNIMPLEMENTED;
+    //WARN_UNIMPLEMENTED;
     return 1;
 }
 
