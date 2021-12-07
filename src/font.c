@@ -397,6 +397,11 @@ XFontStruct* XLoadQueryFont(Display* display, _Xconst char* name) {
     if (fontId == None) {
         return NULL;
     }
+    return XQueryFont(display, fontId);
+}
+
+XFontStruct *XQueryFont(Display *display, XID fontId) {
+    // https://tronche.com/gui/x/xlib/graphics/font-metrics/XQueryFont.html
     TTF_Font* font = GET_FONT(fontId);
     SET_X_SERVER_REQUEST(display, X_QueryFont);
     XFontStruct* fontStruct = malloc(sizeof(XFontStruct));
@@ -469,6 +474,7 @@ XFontStruct* XLoadQueryFont(Display* display, _Xconst char* name) {
             }
         }
     }
+    fontStruct->n_properties = 0;
     return fontStruct;
 }
 
