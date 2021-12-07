@@ -345,10 +345,7 @@ int XFreeFontNames(char** list) {
     return 1;
 }
 
-int XFreeFont(Display* display, XFontStruct* font_struct) {
-    // https://tronche.com/gui/x/xlib/graphics/font-metrics/XFreeFont.html
-    SET_X_SERVER_REQUEST(display, X_CloseFont);
-    TTF_CloseFont(GET_FONT(font_struct->fid));
+void freeFontStruct(XFontStruct* font_struct) {
     FREE_XID(font_struct->fid);
     if (font_struct->per_char != NULL) {
         int numChars = font_struct->max_char_or_byte2 - font_struct->min_char_or_byte2;
@@ -358,7 +355,21 @@ int XFreeFont(Display* display, XFontStruct* font_struct) {
         }
     }
     free(font_struct);
+}
+
+int XFreeFont(Display* display, XFontStruct* font_struct) {
+    // https://tronche.com/gui/x/xlib/graphics/font-metrics/XFreeFont.html
+    SET_X_SERVER_REQUEST(display, X_CloseFont);
+    TTF_CloseFont(GET_FONT(font_struct->fid));
+    freeFontStruct(font_struct);
     return 1;
+}
+
+int XFreeFontInfo(char **names, XFontStruct *free_info, int actual_count) {
+    if (names != NULL) XFreeFontNames(names);
+    for (int i = 0; i < actual_count; i++) {
+        freeFontStruct(free_info + i);
+    }
 }
 
 Bool XGetFontProperty(XFontStruct* font_struct, Atom atom, unsigned long* value_return) {
