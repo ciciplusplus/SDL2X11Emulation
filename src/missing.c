@@ -94,7 +94,65 @@ int XSetClipRectangles ( register Display *dpy, GC gc, int clip_x_origin, int cl
 
 int XGetScreenSaver( register Display *dpy, /* the following are return only vars */ int *timeout, int *interval, int *prefer_blanking, int *allow_exp) /*boolean */ { LOG("CALL XGetScreenSaver\n");  return -1; }
 
-Bool XQueryExtension( register Display *dpy, _Xconst char *name, int *major_opcode, /* RETURN */ int *first_event, /* RETURN */ int *first_error) /* RETURN */ { LOG("CALL XQueryExtension\n");  return False; }
+ XExtCodes *XInitExtension (
+     Display *dpy,
+     _Xconst char *name)
+ {
+     LOG("CALL XInitExtension %s\n", name);
+
+     XExtCodes codes;    /* temp. place for extension information. */
+     register _XExtension *ext;/* need a place to build it all */
+     if (!XQueryExtension(dpy, name,
+         &codes.major_opcode, &codes.first_event,
+         &codes.first_error)) return (NULL);
+
+     LockDisplay (dpy);
+     if (! (ext = Xcalloc (1, sizeof (_XExtension))) ||
+         ! (ext->name = strdup(name))) {
+         Xfree(ext);
+         UnlockDisplay(dpy);
+         return (XExtCodes *) NULL;
+     }
+     codes.extension = dpy->ext_number++;
+     ext->codes = codes;
+
+     /* chain it onto the display list */
+     ext->next = dpy->ext_procs;
+     dpy->ext_procs = ext;
+     UnlockDisplay (dpy);
+
+     return (&ext->codes);       /* tell him which extension */
+ }
+
+XExtCodes *XAddExtension (Display *dpy)
+{
+    register _XExtension *ext;
+
+    LockDisplay (dpy);
+    if (! (ext = Xcalloc (1, sizeof (_XExtension)))) {
+        UnlockDisplay(dpy);
+        return (XExtCodes *) NULL;
+    }
+    ext->codes.extension = dpy->ext_number++;
+
+    /* chain it onto the display list */
+    ext->next = dpy->ext_procs;
+    dpy->ext_procs = ext;
+    UnlockDisplay (dpy);
+
+    return (&ext->codes);		/* tell him which extension */
+}
+
+Bool XQueryExtension( register Display *dpy, _Xconst char *name, int *major_opcode, /* RETURN */ int *first_event, /* RETURN */ int *first_error) /* RETURN */ {
+    LOG("CALL XQueryExtension %s\n", name);
+    if (strcmp(name, "GLX") == 0) {
+        *major_opcode = 1;
+        *first_event = 0;
+        *first_error = 0;
+        return True;
+    }
+    return False;
+}
 
 Bool XkbSetDetectableAutoRepeat(Display *dpy, Bool detectable, Bool *supported) { LOG("CALL XkbSetDetectableAutoRepeat\n");  return False; }
 
@@ -316,3 +374,8 @@ Bool XQueryPointer( register Display *dpy, Window w, Window *root, Window *child
 int XResetScreenSaver(register Display *dpy) { LOG("CALL XResetScreenSaver\n");  return -1; }
 
 int XUngrabPointer( register Display *dpy, Time time) { LOG("CALL XUngrabPointer\n");  return -1; }
+
+int XPending(Display *dpy)
+{
+    return XEventsQueued(dpy, QueuedAfterFlush);
+}
