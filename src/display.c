@@ -15,6 +15,7 @@
 #include "font.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
+#include <limits.h>
 
 // src/OpenDis.c
 #include "X11/locking.h"
@@ -515,4 +516,108 @@ void XSetWMClientMachine (
         XTextProperty *tp)
 {
     XSetTextProperty (dpy, w, tp, XA_WM_CLIENT_MACHINE);
+}
+
+#define safestrlen(s) ((s) ? strlen(s) : 0)
+
+int
+XSetSizeHints(		/* old routine */
+        Display *dpy,
+        Window w,
+        XSizeHints *hints,
+        Atom property)
+{
+    xPropSizeHints prop;
+    memset(&prop, 0, sizeof(prop));
+    prop.flags = (hints->flags & (USPosition|USSize|PAllHints));
+    if (hints->flags & (USPosition|PPosition)) {
+        prop.x = hints->x;
+        prop.y = hints->y;
+    }
+    if (hints->flags & (USSize|PSize)) {
+        prop.width = hints->width;
+        prop.height = hints->height;
+    }
+    if (hints->flags & PMinSize) {
+        prop.minWidth = hints->min_width;
+        prop.minHeight = hints->min_height;
+    }
+    if (hints->flags & PMaxSize) {
+        prop.maxWidth  = hints->max_width;
+        prop.maxHeight = hints->max_height;
+    }
+    if (hints->flags & PResizeInc) {
+        prop.widthInc = hints->width_inc;
+        prop.heightInc = hints->height_inc;
+    }
+    if (hints->flags & PAspect) {
+        prop.minAspectX = hints->min_aspect.x;
+        prop.minAspectY = hints->min_aspect.y;
+        prop.maxAspectX = hints->max_aspect.x;
+        prop.maxAspectY = hints->max_aspect.y;
+    }
+    return XChangeProperty (dpy, w, property, XA_WM_SIZE_HINTS, 32,
+                            PropModeReplace, (unsigned char *) &prop,
+                            OldNumPropSizeElements);
+}
+
+/*
+ * XSetNormalHints sets the property
+ *	WM_NORMAL_HINTS 	type: WM_SIZE_HINTS format: 32
+ */
+
+int
+XSetNormalHints (			/* old routine */
+        Display *dpy,
+        Window w,
+        XSizeHints *hints)
+{
+    return XSetSizeHints (dpy, w, hints, XA_WM_NORMAL_HINTS);
+}
+
+/*
+ * XSetStandardProperties sets the following properties:
+ *	WM_NAME		  type: STRING		format: 8
+ *	WM_ICON_NAME	  type: STRING		format: 8
+ *	WM_HINTS	  type: WM_HINTS	format: 32
+ *	WM_COMMAND	  type: STRING
+ *	WM_NORMAL_HINTS	  type: WM_SIZE_HINTS 	format: 32
+ */
+
+int
+XSetStandardProperties (
+        Display *dpy,
+        Window w,		/* window to decorate */
+        _Xconst char *name,	/* name of application */
+        _Xconst char *icon_string,/* name string for icon */
+        Pixmap icon_pixmap,	/* pixmap to use as icon, or None */
+        char **argv,		/* command to be used to restart application */
+        int argc,		/* count of arguments */
+        XSizeHints *hints)	/* size hints for window in its normal state */
+{
+    XWMHints phints;
+    phints.flags = 0;
+
+    if (name != NULL) XStoreName (dpy, w, name);
+
+    if (safestrlen(icon_string) >= USHRT_MAX)
+        return 1;
+    if (icon_string != NULL) {
+        XChangeProperty (dpy, w, XA_WM_ICON_NAME, XA_STRING, 8,
+                         PropModeReplace,
+                         (_Xconst unsigned char *)icon_string,
+                         (int)safestrlen(icon_string));
+    }
+
+    if (icon_pixmap != None) {
+        phints.icon_pixmap = icon_pixmap;
+        phints.flags |= IconPixmapHint;
+    }
+    if (argv != NULL) XSetCommand(dpy, w, argv, argc);
+
+    if (hints != NULL) XSetNormalHints(dpy, w, hints);
+
+    if (phints.flags != 0) XSetWMHints(dpy, w, &phints);
+
+    return 1;
 }

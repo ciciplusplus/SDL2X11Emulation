@@ -319,6 +319,12 @@ int XSetBackground(Display *dpy, GC gc, unsigned long background) {
     return 1;
 }
 
+int XSetPlaneMask(Display *dpy, GC gc, unsigned long planemask) {
+    (void) dpy;
+    GET_GC(gc)->planeMask = planemask;
+    return 1;
+}
+
 int XSetFont(Display* display, GC gc, Font font) {
     // http://www.net.uom.gr/Books/Manuals/xlib/GC/convenience-functions/XSetFont.html
     TYPE_CHECK(font, FONT, display, 0);

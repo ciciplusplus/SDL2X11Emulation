@@ -141,7 +141,19 @@ int XFree(void *data) {
 Status XGetGeometry(Display *display, Drawable d, Window *root_return, int *x_return, int* y_return, unsigned int *width_return, unsigned int *height_return, unsigned int *border_width_return, unsigned int *depth_return) {
     // https://tronche.com/gui/x/xlib/window-information/XGetGeometry.html
     SET_X_SERVER_REQUEST(display, X_GetGeometry);
-    WARN_UNIMPLEMENTED;
+    if (IS_TYPE(d, WINDOW)) {
+        WindowStruct* windowStruct = GET_WINDOW_STRUCT(d);
+        *root_return = windowStruct->parent;
+        *x_return = windowStruct->x;
+        *y_return = windowStruct->y;
+        *width_return = windowStruct->w;
+        *height_return = windowStruct->h;
+        *border_width_return = windowStruct->borderWidth;
+        *depth_return = windowStruct->depth;
+        return 1;
+    } else {
+        WARN_UNIMPLEMENTED;
+    }
     return 0;
 }
 

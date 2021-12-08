@@ -113,7 +113,7 @@ void init_x() {
         printf("depth: %d, bpp: %d, pad: %d\n", formats[i].depth, formats[i].bits_per_pixel, formats[i].scanline_pad);
     }
 
-	//XSetStandardProperties(dis,win,"Howdy","Hi",None,NULL,0,NULL);
+	XSetStandardProperties(dis,win,"Howdy","Hi",None,NULL,0,NULL);
 	XSelectInput(dis, win, ExposureMask|ButtonPressMask|KeyPressMask);
     gc=XCreateGC(dis, win, 0,0);
 	XSetBackground(dis,gc,white);
