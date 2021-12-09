@@ -348,11 +348,7 @@ int XFreeFontNames(char** list) {
 void freeFontStruct(XFontStruct* font_struct) {
     FREE_XID(font_struct->fid);
     if (font_struct->per_char != NULL) {
-        int numChars = font_struct->max_char_or_byte2 - font_struct->min_char_or_byte2;
-        int i;
-        for (i = 0; i < numChars; i++) {
-            free(font_struct->per_char + i * sizeof(XCharStruct));
-        }
+        free(font_struct->per_char);
     }
     free(font_struct);
 }

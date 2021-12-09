@@ -58,8 +58,6 @@ void XUnlockDisplay( register Display* dpy) { LOG("CALL XUnlockDisplay\n"); }
 
 Bool XCheckTypedWindowEvent ( register Display *dpy, Window w, /* Selected window. */ int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { /* LOG("CALL XCheckTypedWindowEvent\n"); */  return False; }
 
-int XSetFunction ( register Display *dpy, GC gc, int function) { LOG("CALL XSetFunction\n");  return -1; }
-
 int XSetArcMode ( register Display *dpy, register GC gc, int arc_mode) { LOG("CALL XSetArcMode\n");  return -1; }
 
 int XSetFillStyle ( register Display *dpy, register GC gc, int fill_style) { LOG("CALL XSetFillStyle\n");  return -1; }
@@ -342,10 +340,14 @@ XWMHints *XAllocWMHints (void)
     return Xcalloc (1, sizeof (XWMHints));
 }
 
-char *
-XDisplayName(
-    _Xconst char *display)
-{ LOG("CALL XDisplayName\n"); }
+char *XDisplayName(_Xconst char* display) {
+    char *d;
+    if ( display != (char *)NULL && *display != '\0' )
+        return( (char *)display );
+    if ( (d = getenv( "DISPLAY" )) != (char *)NULL )
+        return( d );
+    return( (char *) "" );
+}
 
 char *
 XSetIMValues(XIM im, ...)

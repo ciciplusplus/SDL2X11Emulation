@@ -64,8 +64,8 @@ char* getImageDataPointer(XImage* image, unsigned int x, unsigned int y) {
 
 int _putPixel(XImage* image, int x, int y, unsigned long pixel) {
     // https://tronche.com/gui/x/xlib/utilities/XPutPixel.html
-    LOG("%s on %p: %lu (%ld, %ld, %ld)\n", __func__, image, pixel,
-        (pixel >> 24) & 0xFF, (pixel >> 16) & 0xFF, (pixel >> 8) & 0xFF);
+//    LOG("%s on %p: %lu (%ld, %ld, %ld)\n", __func__, image, pixel,
+//        (pixel >> 24) & 0xFF, (pixel >> 16) & 0xFF, (pixel >> 8) & 0xFF);
     if (image->data == NULL) {
         LOG("Invalid argument: Got image with NULL data in XPutPixel\n");
         return 0;

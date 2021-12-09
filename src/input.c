@@ -147,7 +147,8 @@ int XLookupString(XKeyEvent* event_struct, char* buffer_return, int bytes_buffer
                   KeySym* keysym_return, XComposeStatus *status_in_out) {
     // https://tronche.com/gui/x/xlib/utilities/XLookupString.html
     *buffer_return = event_struct->keycode;
-    *keysym_return = XKeycodeToKeysym(event_struct->display, event_struct->keycode, 0);
+    if (keysym_return != NULL)
+        *keysym_return = XKeycodeToKeysym(event_struct->display, event_struct->keycode, 0);
     return 1;
 }
 

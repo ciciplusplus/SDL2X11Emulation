@@ -344,3 +344,18 @@ int XSetSubwindowMode(Display* display, GC gc, int subwindow_mode)
     GET_GC(gc)->subWindowMode = subwindow_mode;
     return 1;
 }
+
+int XSetLineAttributes(Display* display, GC gc, unsigned int linewidth, int linestyle, int capstyle, int joinstyle) {
+    (void) display;
+    GET_GC(gc)->lineWidth = linewidth;
+    GET_GC(gc)->lineStyle = linestyle;
+    GET_GC(gc)->capStyle  = capstyle;
+    GET_GC(gc)->joinStyle = joinstyle;
+    return 1;
+}
+
+int XSetFunction(Display *display, GC gc, int function) {
+    (void) display;
+    GET_GC(gc)->function = function;
+    return 1;
+}
