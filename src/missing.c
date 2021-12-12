@@ -164,8 +164,6 @@ int XStoreColor( register Display *dpy, Colormap cmap, XColor *def) { LOG("CALL 
 
 int XWindowEvent ( register Display *dpy, Window w, /* Selected window. */ long mask, /* Selected event mask. */ register XEvent *event) /* XEvent to be filled in. */ { LOG("CALL XWindowEvent\n");  return -1; }
 
-XrmQuark XrmUniqueQuark(void) { LOG("CALL XrmUniqueQuark\n"); }
-
 /* Make sure this produces the same string as DefineLocal/DefineSelf in xdm.
  * Otherwise, Xau will not be able to find your cookies in the Xauthority file.
  *
