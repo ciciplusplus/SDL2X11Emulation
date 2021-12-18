@@ -40,29 +40,27 @@ int main () {
 
 	/* look for events forever... */
 	while(1) {
-        i++;
-        if (i % 1000000 != 0) continue;
-
 		/* get the next event and stuff it into our event variable.
 		   Note:  only events we set the mask for are detected!
 		*/
-		//XNextEvent(dis, &event);
+		XNextEvent(dis, &event);
 	
-		//if (event.type==Expose && event.xexpose.count==0)
+		if (event.type==Expose && event.xexpose.count==0)
         {
 		/* the window was exposed redraw it! */
 			redraw();
 		}
-//		if (event.type==KeyPress&&
-//		    XLookupString(&event.xkey,text,255,&key,0)==1)
+		if (event.type==KeyPress&&
+		    XLookupString(&event.xkey,text,255,&key,0)==1)
         {
 		/* use the XLookupString routine to convert the invent
 		   KeyPress data into regular text.  Weird but necessary...
 		*/
 			if (text[0]=='q') {
 				close_x();
+                break;
 			}
-			//printf("You pressed the %c key!\n",text[0]);
+			printf("You pressed the %c key!\n",text[0]);
 
 			int x = rand()%300, y = rand()%300;
 

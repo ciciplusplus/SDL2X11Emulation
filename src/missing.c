@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "util.h"
 
-Window XGetSelectionOwner( register Display *dpy, Atom selection) { /* LOG("CALL XGetSelectionOwner\n"); */ return dpy->screens[0].root; }
+Window XGetSelectionOwner( register Display *dpy, Atom selection) { LOG("CALL XGetSelectionOwner\n"); return dpy->screens[0].root; }
 
 void XSetTextProperty (
         Display *dpy,
@@ -36,8 +36,6 @@ void XSetWMIconName (
 
 int XClearWindow ( Display* dpy, Window w) { return XClearArea(dpy, w, 0, 0, 0, 0, False); }
 
-int XClearArea ( register Display *dpy, Window w, int x, int y, unsigned int width, unsigned int height, Bool exposures) { LOG("CALL XClearArea\n");  return -1; }
-
 long XMaxRequestSize(Display *dpy) { LOG("CALL XMaxRequestSize\n");  return -1; }
 
 int XDisplayKeycodes(Display *dpy, int *min_keycode_return, int *max_keycode_return) {
@@ -56,7 +54,7 @@ void XLockDisplay( register Display* dpy) { LOG("CALL XLockDisplay\n"); }
 
 void XUnlockDisplay( register Display* dpy) { LOG("CALL XUnlockDisplay\n"); }
 
-Bool XCheckTypedWindowEvent ( register Display *dpy, Window w, /* Selected window. */ int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { /* LOG("CALL XCheckTypedWindowEvent\n"); */  return False; }
+Bool XCheckTypedWindowEvent ( register Display *dpy, Window w, /* Selected window. */ int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { LOG("CALL XCheckTypedWindowEvent\n"); return False; }
 
 int XSetArcMode ( register Display *dpy, register GC gc, int arc_mode) { LOG("CALL XSetArcMode\n");  return -1; }
 
@@ -83,12 +81,6 @@ Bool XRegisterIMInstantiateCallback( Display *display, XrmDatabase rdb, char *re
 Bool XUnregisterIMInstantiateCallback( Display *display, XrmDatabase rdb, char *res_name, char *res_class, XIDProc callback, XPointer client_data) { LOG("CALL XUnregisterIMInstantiateCallback\n");  return False; }
 
 int XSetClipRectangles ( register Display *dpy, GC gc, int clip_x_origin, int clip_y_origin, XRectangle *rectangles, int n, int ordering) { LOG("CALL XSetClipRectangles\n");  return -1; }
-
-//int XSaveContext( Display *display, register XID rid, register XContext context, _Xconst char* data) { LOG("CALL XSaveContext\n");  return -1; }
-
-//int XFindContext(Display *display, XID rid, XContext context, XPointer *data) { LOG("CALL XFindContext\n");  return -1; }
-
-//int XDeleteContext(Display *display, XID rid, XContext context) { LOG("CALL XDeleteContext\n");  return -1; }
 
 int XGetScreenSaver( register Display *dpy, /* the following are return only vars */ int *timeout, int *interval, int *prefer_blanking, int *allow_exp) /*boolean */ { LOG("CALL XGetScreenSaver\n");  return -1; }
 
@@ -329,7 +321,7 @@ Bool XCheckIfEvent (
 			  char*				/* arg */
 			  ),		/* function to call */
 	char *arg)
-{ /* LOG("CALL XCheckIfEvent\n"); */ return False; }
+{ LOG("CALL XCheckIfEvent\n"); return False; }
 
 char *XServerVendor(Display *dpy) { return (ServerVendor(dpy)); }
 

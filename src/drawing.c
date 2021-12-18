@@ -7,6 +7,7 @@
 #include "util.h"
 #include "gc.h"
 #include "colors.h"
+#include "events.h"
 
 #define SDL_VIEWPORT_INCORRECT_COORDINATE_ORIGIN
 
@@ -252,6 +253,28 @@ int XDrawLines(Display *display, Drawable d, GC gc, XPoint *points, int npoints,
         LOG("SDL_RenderDrawLines failed in %s: %s\n", __func__, SDL_GetError());
     }
     SDL_RenderPresent(renderer);
+    return 1;
+}
+
+int XClearArea ( register Display *dpy, Window w, int x, int y, unsigned int width, unsigned int height, Bool exposures) {
+    // https://tronche.com/gui/x/xlib/graphics/XClearArea.html
+    WindowStruct* windowStruct = GET_WINDOW_STRUCT(w);
+
+    if (width == 0) width = windowStruct->w - x;
+    if (height == 0) height = windowStruct->h - y;
+
+    // TODO: this could be faster without tmp GC creation (just call SDL directly ?)
+    GC tmpGC = XCreateGC(dpy, w, 0, NULL);
+    GraphicContext* tmpGContext = GET_GC(tmpGC);
+    tmpGContext->fillStyle = FillSolid;
+    tmpGContext->foreground = windowStruct->backgroundColor;
+    XFillRectangle(dpy, w, tmpGC, x, y, width, height);
+
+    if (exposures) {
+        SDL_Rect exposeRect = {x, y, width, height};
+        postExposeEvent(dpy, w, &exposeRect, 1);
+    }
+
     return 1;
 }
 
