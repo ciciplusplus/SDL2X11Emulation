@@ -96,7 +96,7 @@ Display* XOpenDisplay(_Xconst char* display_name) {
     display->scratch_length	= 0L;
     display->scratch_buffer	= NULL;
     display->key_bindings	= NULL;
-//    display->ext_procs		= (_XExtension *)NULL;
+    display->ext_procs		= NULL;
     display->ext_data		= (XExtData *)NULL;
     display->ext_number 	= 0;
 //    display->event_vec[X_Error] = _XUnknownWireEvent;
