@@ -832,14 +832,6 @@ int XChangeWindowAttributes(Display* display, Window window, unsigned long value
     return 1;
 }
 
-Window XRootWindow(Display* display, int screen_number) {
-    // https://tronche.com/gui/x/xlib/display/display-macros.html#RootWindow
-//    SET_X_SERVER_REQUEST(display, XCB_);
-    (void) display;
-    (void) screen_number;
-    return SCREEN_WINDOW;
-}
-
 int XMoveResizeWindow(Display* display, Window window, int x, int y, unsigned int width, unsigned int height) {
     // https://tronche.com/gui/x/xlib/window/XMoveResizeWindow.html
     if (XMoveWindow(display, window, x, y) && XResizeWindow(display, window, width, height)) {

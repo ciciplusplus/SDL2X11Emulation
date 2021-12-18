@@ -64,8 +64,6 @@ int XSetScreenSaver( register Display *dpy, int timeout, int interval, int prefe
 
 Cursor XCreateFontCursor( Display *dpy, unsigned int which) { LOG("CALL XCreateFontCursor\n"); }
 
-int XVendorRelease(Display *dpy) { return (VendorRelease(dpy)); }
-
 void XUnsetICFocus(XIC ic) { LOG("CALL XUnsetICFocus\n"); }
 
 int XmbLookupString(XIC ic, XKeyEvent *ev, char *buffer, int nbytes, KeySym *keysym, Status *status) { LOG("CALL XmbLookupString\n");  return -1; }
@@ -322,8 +320,6 @@ Bool XCheckIfEvent (
 			  ),		/* function to call */
 	char *arg)
 { LOG("CALL XCheckIfEvent\n"); return False; }
-
-char *XServerVendor(Display *dpy) { return (ServerVendor(dpy)); }
 
 XWMHints *XAllocWMHints (void)
 {

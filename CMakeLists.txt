@@ -89,6 +89,7 @@ add_library(sdl2X11Emulation SHARED
         src/X11/locking.h src/X11/locking.c
         src/X11/Context.c src/X11/ParseGeom.c src/X11/SetWMProto.c
         src/X11/Quarks.c src/X11/reallocarray.c
+        src/display-macros.c
         )
 
 # set_target_properties(sdl2X11Emulation PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
