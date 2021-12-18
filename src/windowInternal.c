@@ -354,7 +354,9 @@ Bool configureWindow(Display* display, Window window, unsigned long value_mask, 
                 return False;
             }
         }
+        #ifdef DEBUG_WINDOWS
         printWindowsHierarchy();
+        #endif
         LOG("(NOT) Resizing window %lu to (%ux%u)\n", window, width, height);
 //        if (isMappedTopLevelWindow) {
 //            SDL_SetWindowSize(windowStruct->sdlWindow, width, height);

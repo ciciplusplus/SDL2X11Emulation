@@ -31,7 +31,6 @@ Window XCreateSimpleWindow(Display* display, Window parent, int x, int y, unsign
 Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int width,
                      unsigned int height, unsigned int border_width, int depth, unsigned int clazz,
                      Visual* visual, unsigned long valueMask, XSetWindowAttributes* attributes) {
-    LOG("!!! XCreateWindow\n");
     // https://tronche.com/gui/x/xlib/window/XCreateWindow.html
     SET_X_SERVER_REQUEST(display, X_CreateWindow);
     TYPE_CHECK(parent, WINDOW, display, None);
@@ -90,7 +89,7 @@ Window XCreateWindow(Display* display, Window parent, int x, int y, unsigned int
     if (valueMask != 0) {
         XChangeWindowAttributes(display, windowID, valueMask, attributes);
     }
-    //XMapWindow(display, windowID);
+    LOG("!!! XCreateWindow %lu {x = %d, y = %d, w = %d, h = %d} TYPE %d PARENT %lu\n", windowID, x, y, width, height, GET_XID_TYPE(windowID), GET_WINDOW_STRUCT(windowID)->parent);
     return windowID;
 }
 
