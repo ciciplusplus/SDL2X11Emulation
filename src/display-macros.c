@@ -1,5 +1,9 @@
 #include "X11/Xlib.h"
 
+unsigned long XAllPlanes() {
+    return AllPlanes;
+}
+
 unsigned long XBlackPixel(
         Display *display,
         int screen_number
