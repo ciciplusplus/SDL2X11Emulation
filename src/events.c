@@ -10,6 +10,7 @@
 #include "atoms.h"
 #include "util.h"
 #include "drawing.h"
+#include "X11/Xlibint.h"
 
 int eventFds[2];
 #define READ_EVENT_FD eventFds[0]
@@ -142,7 +143,7 @@ unsigned int convertModifierState(Uint16 mod) {
     return state;
 }
 
-int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent) {
+int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent, Bool freeInternalEvents) {
     Bool sendEvent = False;
     Window eventWindow = None;
     int type = -1;
@@ -680,11 +681,11 @@ int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent) {
                             memcpy(&xEvent->xmapping, allocEvent, sizeof(XMappingEvent)); break;
                         default: break;
                     }
-                    free(allocEvent);
+                    if (freeInternalEvents) free(allocEvent);
                     break;
                 } else if (sdlEvent->user.code == SEND_EVENT_CODE) {
                     memcpy(xEvent, sdlEvent->user.data1, sizeof(XEvent));
-                    free(sdlEvent->user.data1);
+                    if (freeInternalEvents) free(sdlEvent->user.data1);
                     return 0;
                 }
             }
@@ -806,7 +807,7 @@ int XNextEvent(Display* display, XEvent* event_return) {
             }
             // Clear the event from the pipe;
             READ_EVENT_IN_PIPE(display);
-            if (convertEvent(display, &event, event_return) == 0) {
+            if (convertEvent(display, &event, event_return, True) == 0) {
                 printEventInfo(event_return);
                 done = True;
             } else {
@@ -863,12 +864,21 @@ Bool enqueueEvent(Display* display, Window eventWindow, void* event) {
     return False;
 }
 
+int XPutBackEvent(Display *display, XEvent *event) {
+    // TODO: this is wrong as will place event at the back and not head of the queue!
+    return XSendEvent(display, event->xany.window, False, 0, event);
+    //return postEvent(display, event->xany.window, event->type);
+//    XEvent *tmpEvent = malloc(sizeof(XEvent));
+//    memcpy(tmpEvent, event, sizeof(XEvent));
+//    return enqueueEvent(display, event->xany.window, tmpEvent);
+}
+
 Status XSendEvent(Display* display, Window window, Bool propagate, long event_mask, XEvent* event_send) {
     // https://tronche.com/gui/x/xlib/event-handling/XSendEvent.html
     SET_X_SERVER_REQUEST(display, X_SendEvent);
     // TODO: propagate, event_mask
     //  We have to assume that window is our window
-    TYPE_CHECK(window, WINDOW, display, 0);
+    //TYPE_CHECK(window, WINDOW, display, 0);
     event_send->xany.send_event = True;
     event_send->xany.serial = lastEventSerial;
     lastEventSerial++;
@@ -1236,17 +1246,28 @@ Bool checkTypedEvent(Display *display, Window w, int type, XEvent *event, Bool (
     // TODO: how much to look ahead in queue ?
     int tmpLength = 100;
     SDL_Event tmp[tmpLength];
+    LockDisplay(display);
     qlen = SDL_PeepEvents((SDL_Event*) &tmp, tmpLength, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
     if (qlen > 0) {
         for (int i = 0; i < qlen; i++) {
-            convertEvent(display, &tmp[i], event);
+            convertEvent(display, &tmp[i], event, False);
             if (predicate(w, type, event)) {
                 // discard SDL event
-                SDL_PeepEvents(NULL, 1, SDL_GETEVENT, tmp[i].type, tmp[i].type);
+                // FIXME: this is wrong for XCheckTypedWindowEvent
+                SDL_Event toRemove;
+                int res = SDL_PeepEvents(&toRemove, 1, SDL_GETEVENT, tmp[i].type, tmp[i].type);
+                if (res < 0) {
+                    LOG("Unable to remove event from queue: %s\n", SDL_GetError());
+                    UnlockDisplay(display);
+                    return False;
+                }
+                READ_EVENT_IN_PIPE(display);
+                UnlockDisplay(display);
                 return True;
             }
         }
     }
+    UnlockDisplay(display);
     return False;
 }
 
@@ -1256,6 +1277,51 @@ Bool XCheckTypedEvent(Display *display, int type, XEvent *event) {
 
 Bool XCheckTypedWindowEvent(Display *display, Window w, int type, XEvent *event) {
     return checkTypedEvent(display, w, type, event, &checkTypedWindowPredicate);
+}
+
+Bool XCheckIfEvent (
+        register Display *display,
+        register XEvent *event,		/* XEvent to be filled in. */
+        Bool (*predicate)(
+                Display*			/* display */,
+                XEvent*			/* event */,
+                char*				/* arg */
+        ),		/* function to call */
+        char *arg) {
+
+    if (GET_DISPLAY(display)->qlen == 0) {
+        SDL_PumpEvents();
+    }
+    int qlen;
+    // TODO: how much to look ahead in queue ?
+    int tmpLength = 100;
+    SDL_Event tmp[tmpLength];
+    LockDisplay(display);
+    qlen = SDL_PeepEvents((SDL_Event*) &tmp, tmpLength, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+    if (qlen > 0) {
+        LOG("FOUND %d events in SDL queue\n", qlen);
+        for (int i = 0; i < qlen; i++) {
+            convertEvent(display, &tmp[i], event, False);
+            LOG("i = %d, SDL event_type = %d, X event_type = %d\n", i, tmp[i].type, event->type);
+            if (predicate(display, event, arg)) {
+                // discard SDL event
+                // FIXME: this is wrong!
+                SDL_Event toRemove;
+                int res = SDL_PeepEvents(&toRemove, 1, SDL_GETEVENT, tmp[i].type, tmp[i].type);
+                if (res < 0) {
+                    LOG("Unable to remove event from queue: %s\n", SDL_GetError());
+                    UnlockDisplay(display);
+                    return False;
+                }
+                LOG("SDL_PeepEvents res: %d\n", res);
+                READ_EVENT_IN_PIPE(display);
+                UnlockDisplay(display);
+                return True;
+            }
+        }
+    }
+    UnlockDisplay(display);
+    return False;
 }
 
 #undef ENQUEUE_EVENT_IN_PIPE

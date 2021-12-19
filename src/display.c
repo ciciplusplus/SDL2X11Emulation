@@ -268,7 +268,7 @@ int XBell(Display* display, int percent) {
 
 int XSync(Display *display, Bool discard) {
     // https://tronche.com/gui/x/xlib/event-handling/XSync.html
-    WARN_UNIMPLEMENTED;
+    //WARN_UNIMPLEMENTED;
     drawWindowDataToScreen();
     return 1;
 }

@@ -5,7 +5,7 @@
 #ifndef WINDOWDEBUG_H
 #define WINDOWDEBUG_H
 
-#define DEBUG_WINDOWS 1
+//#define DEBUG_WINDOWS 1
 
 #ifdef DEBUG_WINDOWS
 

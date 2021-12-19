@@ -51,9 +51,9 @@ Status XAllocColorCells( register Display *dpy, Colormap cmap, Bool contig, unsi
 
 int XQueryColor( register Display *dpy, Colormap cmap, XColor *def) /* RETURN */ { LOG("CALL XQueryColor\n");  return 0; }
 
-void XLockDisplay( register Display* dpy) { LOG("CALL XLockDisplay\n"); }
+void XLockDisplay( register Display* dpy) { LockDisplay(dpy); }
 
-void XUnlockDisplay( register Display* dpy) { LOG("CALL XUnlockDisplay\n"); }
+void XUnlockDisplay( register Display* dpy) { UnlockDisplay(dpy); }
 
 int XSetArcMode ( register Display *dpy, register GC gc, int arc_mode) { LOG("CALL XSetArcMode\n");  return 0; }
 
@@ -71,7 +71,7 @@ Bool XSupportsLocale(void) { LOG("CALL XSupportsLocale\n");  return False; }
 
 int XmbTextPropertyToTextList( Display *dpy, const XTextProperty *text_prop, char ***list_ret, int *count_ret) { LOG("CALL XmbTextPropertyToTextList\n");  return 0; }
 
-int XmbTextListToTextProperty( Display *dpy, char **list, int count, XICCEncodingStyle style, XTextProperty *text_prop) { LOG("CALL XmbTextListToTextProperty\n");  return 0; }
+int XmbTextListToTextProperty( Display *dpy, char **list, int count, XICCEncodingStyle style, XTextProperty *text_prop) { LOG("CALL XmbTextListToTextProperty\n");  return 1; }
 
 Bool XRegisterIMInstantiateCallback( Display *display, XrmDatabase rdb, char *res_name, char *res_class, XIDProc callback, XPointer client_data) { LOG("CALL XRegisterIMInstantiateCallback\n");  return False; }
 
@@ -311,17 +311,6 @@ XkbKeycodeToKeysym(Display *dpy,
                    int level)
 { LOG("CALL XkbKeycodeToKeysym\n"); }
 
-Bool XCheckIfEvent (
-	register Display *dpy,
-	register XEvent *event,		/* XEvent to be filled in. */
-	Bool (*predicate)(
-			  Display*			/* display */,
-			  XEvent*			/* event */,
-			  char*				/* arg */
-			  ),		/* function to call */
-	char *arg)
-{ LOG("CALL XCheckIfEvent\n"); return False; }
-
 XWMHints *XAllocWMHints (void)
 {
     return Xcalloc (1, sizeof (XWMHints));
@@ -382,8 +371,6 @@ Bool XCheckWindowEvent ( register Display *dpy, Window w, /* Selected window. */
 int XDisplayWidth(Display *dpy, int scr) { printf("CALL XDisplayWidth\n");  return 0; }
 
 int XDisplayHeight(Display *dpy, int scr) { printf("CALL XDisplayHeight\n");  return 0; }
-
-int XPutBackEvent ( register Display * dpy, register XEvent *event) { printf("CALL XPutBackEvent\n");  return 0; }
 
 int XMapSubwindows( register Display *dpy, Window win) { printf("CALL XMapSubwindows\n");  return 0; }
 
