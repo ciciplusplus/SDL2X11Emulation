@@ -1220,5 +1220,43 @@ Bool postEvent(Display* display, Window eventWindow, unsigned int eventId, ...) 
 #undef SKIP
 }
 
+Bool checkTypedPredicate(Window w, int type, XEvent *event) {
+    return event->type == type;
+}
+
+Bool checkTypedWindowPredicate(Window w, int type, XEvent *event) {
+    return event->type == type && event->xany.window == w;
+}
+
+Bool checkTypedEvent(Display *display, Window w, int type, XEvent *event, Bool (predicate)(Window, int, XEvent *)) {
+    if (GET_DISPLAY(display)->qlen == 0) {
+        SDL_PumpEvents();
+    }
+    int qlen;
+    // TODO: how much to look ahead in queue ?
+    int tmpLength = 100;
+    SDL_Event tmp[tmpLength];
+    qlen = SDL_PeepEvents((SDL_Event*) &tmp, tmpLength, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+    if (qlen > 0) {
+        for (int i = 0; i < qlen; i++) {
+            convertEvent(display, &tmp[i], event);
+            if (predicate(w, type, event)) {
+                // discard SDL event
+                SDL_PeepEvents(NULL, 1, SDL_GETEVENT, tmp[i].type, tmp[i].type);
+                return True;
+            }
+        }
+    }
+    return False;
+}
+
+Bool XCheckTypedEvent(Display *display, int type, XEvent *event) {
+    return checkTypedEvent(display, 0, type, event, &checkTypedPredicate);
+}
+
+Bool XCheckTypedWindowEvent(Display *display, Window w, int type, XEvent *event) {
+    return checkTypedEvent(display, w, type, event, &checkTypedWindowPredicate);
+}
+
 #undef ENQUEUE_EVENT_IN_PIPE
 #undef READ_EVENT_IN_PIPE

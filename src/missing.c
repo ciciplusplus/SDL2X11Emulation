@@ -55,8 +55,6 @@ void XLockDisplay( register Display* dpy) { LOG("CALL XLockDisplay\n"); }
 
 void XUnlockDisplay( register Display* dpy) { LOG("CALL XUnlockDisplay\n"); }
 
-Bool XCheckTypedWindowEvent ( register Display *dpy, Window w, /* Selected window. */ int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { LOG("CALL XCheckTypedWindowEvent\n"); return False; }
-
 int XSetArcMode ( register Display *dpy, register GC gc, int arc_mode) { LOG("CALL XSetArcMode\n");  return 0; }
 
 int XSetFillStyle ( register Display *dpy, register GC gc, int fill_style) { LOG("CALL XSetFillStyle\n");  return 0; }
@@ -402,8 +400,6 @@ int XAutoRepeatOff (register Display *dpy) { printf("CALL XAutoRepeatOff\n");  r
 Status XQueryBestCursor( register Display *dpy, Drawable drawable, unsigned int width, unsigned int height, unsigned int *ret_width, unsigned int *ret_height) { printf("CALL XQueryBestCursor\n");  return 0; }
 
 int XRotateWindowProperties( register Display *dpy, Window w, Atom *properties, register int nprops, int npositions) { printf("CALL XRotateWindowProperties\n");  return 0; }
-
-Bool XCheckTypedEvent ( register Display *dpy, int type, /* Selected event type. */ register XEvent *event) /* XEvent to be filled in. */ { printf("CALL XCheckTypedEvent\n");  return False; }
 
 int XChangeKeyboardMapping ( register Display *dpy, int first_keycode, int keysyms_per_keycode, KeySym *keysyms, int nkeycodes) { printf("CALL XChangeKeyboardMapping\n");  return 0; }
 
