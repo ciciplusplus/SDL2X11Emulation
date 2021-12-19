@@ -62,7 +62,7 @@ char* getImageDataPointer(XImage* image, unsigned int x, unsigned int y) {
     return pointer + (image->bits_per_pixel / 8) * x;
 }
 
-int _putPixel(XImage* image, int x, int y, unsigned long pixel) {
+int XPutPixel(XImage* image, int x, int y, unsigned long pixel) {
     // https://tronche.com/gui/x/xlib/utilities/XPutPixel.html
 //    LOG("%s on %p: %lu (%ld, %ld, %ld)\n", __func__, image, pixel,
 //        (pixel >> 24) & 0xFF, (pixel >> 16) & 0xFF, (pixel >> 8) & 0xFF);
@@ -89,7 +89,7 @@ int _putPixel(XImage* image, int x, int y, unsigned long pixel) {
     return 1;
 }
 
-unsigned long _getPixel(XImage* image, int x, int y) {
+unsigned long XGetPixel(XImage* image, int x, int y) {
     // https://tronche.com/gui/x/xlib/utilities/XGetPixel.html
     //LOG("%s from %p: x = %d, y = %d\n", __func__, image, x, y);
     if (image->data == NULL) {
@@ -246,8 +246,8 @@ XImage* XGetImage(Display* display, Drawable drawable, int x, int y, unsigned in
 }
 
 Status _XInitImageFuncPtrs(XImage *image) {
-    image->f.put_pixel = _putPixel;
-    image->f.get_pixel = _getPixel;
+    image->f.put_pixel = XPutPixel;
+    image->f.get_pixel = XGetPixel;
     image->f.create_image = XCreateImage;
     image->f.destroy_image = destroyImage;
     image->f.add_pixel = NULL; // TODO

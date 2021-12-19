@@ -191,7 +191,7 @@ typedef struct {
 	char *res_class;
 } XClassHint;
 
-#ifdef XUTIL_DEFINE_FUNCTIONS
+//#ifdef XUTIL_DEFINE_FUNCTIONS
 extern int XDestroyImage(
         XImage *ximage);
 extern unsigned long XGetPixel(
@@ -208,22 +208,22 @@ extern XImage *XSubImage(
 extern int XAddPixel(
         XImage *ximage,
         long value);
-#else
-/*
- * These macros are used to give some sugar to the image routines so that
- * naive people are more comfortable with them.
- */
-#define XDestroyImage(ximage) \
-	((*((ximage)->f.destroy_image))((ximage)))
-#define XGetPixel(ximage, x, y) \
-	((*((ximage)->f.get_pixel))((ximage), (x), (y)))
-#define XPutPixel(ximage, x, y, pixel) \
-	((*((ximage)->f.put_pixel))((ximage), (x), (y), (pixel)))
-#define XSubImage(ximage, x, y, width, height)  \
-	((*((ximage)->f.sub_image))((ximage), (x), (y), (width), (height)))
-#define XAddPixel(ximage, value) \
-	((*((ximage)->f.add_pixel))((ximage), (value)))
-#endif
+//#else
+///*
+// * These macros are used to give some sugar to the image routines so that
+// * naive people are more comfortable with them.
+// */
+//#define XDestroyImage(ximage) \
+//	((*((ximage)->f.destroy_image))((ximage)))
+//#define XGetPixel(ximage, x, y) \
+//	((*((ximage)->f.get_pixel))((ximage), (x), (y)))
+//#define XPutPixel(ximage, x, y, pixel) \
+//	((*((ximage)->f.put_pixel))((ximage), (x), (y), (pixel)))
+//#define XSubImage(ximage, x, y, width, height)  \
+//	((*((ximage)->f.sub_image))((ximage), (x), (y), (width), (height)))
+//#define XAddPixel(ximage, value) \
+//	((*((ximage)->f.add_pixel))((ximage), (value)))
+//#endif
 
 /*
  * Compose sequence status structure, used in calling XLookupString.
