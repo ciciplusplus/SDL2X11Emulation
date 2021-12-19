@@ -1,4 +1,6 @@
 #include "X11/Xlib.h"
+#include "X11/Xlibint.h"
+#include "X11/reallocarray.h"
 
 unsigned long XAllPlanes() {
     return AllPlanes;
@@ -41,6 +43,16 @@ Screen *XDefaultScreenOfDisplay(
         Display *display
 ) { return DefaultScreenOfDisplay(display); }
 
+Screen *XScreenOfDisplay(Display *display, int screen_number) {
+    return ScreenOfDisplay(display, screen_number);
+};
+
+Display *XDisplayOfScreen(
+        Screen* screen
+) {
+    return DisplayOfScreen(screen);
+}
+
 int XDefaultScreen(
         Display *display
 ) { return DefaultScreen(display); }
@@ -49,6 +61,12 @@ Visual *XDefaultVisual(
         Display *display,
         int screen_number
 ) { return DefaultVisual(display, screen_number); }
+
+Visual *XDefaultVisualOfScreen(
+        Screen* screen
+) {
+    return DefaultVisualOfScreen(screen);
+}
 
 int XDisplayCells(
         Display *display,
@@ -101,3 +119,33 @@ int XVendorRelease(
         Display *display
 ) { return VendorRelease(display); }
 
+/*
+ * XListDepths - return info from connection setup
+ */
+int *XListDepths (
+        Display *dpy,
+        int scrnum,
+        int *countp)
+{
+    Screen *scr;
+    int count;
+    int *depths;
+
+    if (scrnum < 0 || scrnum >= dpy->nscreens) return NULL;
+
+    scr = &dpy->screens[scrnum];
+    if ((count = scr->ndepths) > 0) {
+        register Depth *dp;
+        register int i;
+
+        depths = Xmallocarray (count, sizeof(int));
+        if (!depths) return NULL;
+        for (i = 0, dp = scr->depths; i < count; i++, dp++)
+            depths[i] = dp->depth;
+    } else {
+        /* a screen must have a depth */
+        return NULL;
+    }
+    *countp = count;
+    return depths;
+}

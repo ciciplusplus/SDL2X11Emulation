@@ -289,12 +289,6 @@ int XSetSelectionOwner(Display *display, Atom selection, Window owner, Time time
     return 1;
 }
 
-int (*XSynchronize(Display *display, Bool onoff))(Display* dsp) {
-    // https://tronche.com/gui/x/xlib/event-handling/protocol-errors/XSynchronize.html
-    WARN_UNIMPLEMENTED;
-    return NULL;
-}
-
 int XNoOp(Display *display) {
     // https://tronche.com/gui/x/xlib/display/XNoOp.html
     SET_X_SERVER_REQUEST(display, X_NoOperation);
