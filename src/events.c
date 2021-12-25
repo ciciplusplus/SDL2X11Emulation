@@ -1230,15 +1230,19 @@ Bool postEvent(Display* display, Window eventWindow, unsigned int eventId, ...) 
 #undef SKIP
 }
 
-Bool checkTypedPredicate(Window w, int type, XEvent *event) {
+Bool checkTypedPredicate(Window w, int type, long mask, XEvent *event) {
     return event->type == type;
 }
 
-Bool checkTypedWindowPredicate(Window w, int type, XEvent *event) {
+Bool checkTypedWindowPredicate(Window w, int type, long mask, XEvent *event) {
     return event->type == type && event->xany.window == w;
 }
 
-Bool checkTypedEvent(Display *display, Window w, int type, XEvent *event, Bool (predicate)(Window, int, XEvent *)) {
+Bool checkMaskedWindowPredicate(Window w, int type, long mask, XEvent *event) {
+    return (event->type & mask) && event->xany.window == w;
+}
+
+Bool checkTypedEvent(Display *display, Window w, int type, long mask, XEvent *event, Bool (predicate)(Window, int, long, XEvent *)) {
     if (GET_DISPLAY(display)->qlen == 0) {
         SDL_PumpEvents();
     }
@@ -1249,9 +1253,11 @@ Bool checkTypedEvent(Display *display, Window w, int type, XEvent *event, Bool (
     LockDisplay(display);
     qlen = SDL_PeepEvents((SDL_Event*) &tmp, tmpLength, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
     if (qlen > 0) {
+        LOG("FOUND %d events in SDL queue\n", qlen);
         for (int i = 0; i < qlen; i++) {
             convertEvent(display, &tmp[i], event, False);
-            if (predicate(w, type, event)) {
+            LOG("i = %d, SDL event_type = %d, X event_type = %d\n", i, tmp[i].type, event->type);
+            if (predicate(w, type, mask, event)) {
                 // discard SDL event
                 // FIXME: this is wrong for XCheckTypedWindowEvent
                 SDL_Event toRemove;
@@ -1261,6 +1267,7 @@ Bool checkTypedEvent(Display *display, Window w, int type, XEvent *event, Bool (
                     UnlockDisplay(display);
                     return False;
                 }
+                LOG("SDL_PeepEvents res: %d\n", res);
                 READ_EVENT_IN_PIPE(display);
                 UnlockDisplay(display);
                 return True;
@@ -1272,11 +1279,19 @@ Bool checkTypedEvent(Display *display, Window w, int type, XEvent *event, Bool (
 }
 
 Bool XCheckTypedEvent(Display *display, int type, XEvent *event) {
-    return checkTypedEvent(display, 0, type, event, &checkTypedPredicate);
+    return checkTypedEvent(display, 0, type, 0, event, &checkTypedPredicate);
 }
 
 Bool XCheckTypedWindowEvent(Display *display, Window w, int type, XEvent *event) {
-    return checkTypedEvent(display, w, type, event, &checkTypedWindowPredicate);
+    return checkTypedEvent(display, w, type, 0, event, &checkTypedWindowPredicate);
+}
+
+Bool XCheckWindowEvent(Display *display, Window w, long mask, XEvent *event) {
+    return checkTypedEvent(display, w, 0, mask, event, &checkMaskedWindowPredicate);
+}
+
+int XWindowEvent(Display *display, Window w, long mask, XEvent *event) {
+    return XCheckWindowEvent(display, w, mask, event);
 }
 
 Bool XCheckIfEvent (

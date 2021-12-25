@@ -2,6 +2,14 @@
 #include "X11/Xlibint.h"
 #include "X11/reallocarray.h"
 
+int XDisplayWidth(Display *dpy, int scr) { return DisplayWidth(dpy, scr); }
+
+int XDisplayHeight(Display *dpy, int scr) { return DisplayHeight(dpy, scr); }
+
+int XDisplayWidthMM(Display *dpy, int scr) { return DisplayWidthMM(dpy, scr); }
+
+int XDisplayHeightMM(Display *dpy, int scr) { return DisplayHeightMM(dpy, scr); }
+
 unsigned long XAllPlanes() {
     return AllPlanes;
 }

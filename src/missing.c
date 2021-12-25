@@ -153,8 +153,6 @@ int XDrawPoints( register Display *dpy, Drawable d, GC gc, XPoint *points, int n
 
 int XStoreColor( register Display *dpy, Colormap cmap, XColor *def) { LOG("CALL XStoreColor\n");  return 0; }
 
-int XWindowEvent ( register Display *dpy, Window w, /* Selected window. */ long mask, /* Selected event mask. */ register XEvent *event) /* XEvent to be filled in. */ { LOG("CALL XWindowEvent\n");  return 0; }
-
 /* Make sure this produces the same string as DefineLocal/DefineSelf in xdm.
  * Otherwise, Xau will not be able to find your cookies in the Xauthority file.
  *
@@ -366,12 +364,6 @@ Bool XCheckMaskEvent ( register Display *dpy, long mask, /* Selected event mask.
 
 int XSetState( register Display *dpy, GC gc, unsigned long foreground, unsigned long background, int function, unsigned long planemask) { printf("CALL XSetState\n");  return 0; }
 
-Bool XCheckWindowEvent ( register Display *dpy, Window w, /* Selected window. */ long mask, /* Selected event mask. */ register XEvent *event) /* XEvent to be filled in. */ { printf("CALL XCheckWindowEvent\n");  return False; }
-
-int XDisplayWidth(Display *dpy, int scr) { printf("CALL XDisplayWidth\n");  return 0; }
-
-int XDisplayHeight(Display *dpy, int scr) { printf("CALL XDisplayHeight\n");  return 0; }
-
 int XMapSubwindows( register Display *dpy, Window win) { printf("CALL XMapSubwindows\n");  return 0; }
 
 int XDrawSegments ( register Display *dpy, Drawable d, GC gc, XSegment *segments, int nsegments) { printf("CALL XDrawSegments\n");  return 0; }
@@ -413,10 +405,6 @@ int XCirculateSubwindowsDown( register Display *dpy, Window w) { printf("CALL XC
 int XUndefineCursor ( register Display *dpy, Window w) { printf("CALL XUndefineCursor\n");  return 0; }
 
 int XUnmapSubwindows( register Display *dpy, Window win) { printf("CALL XUnmapSubwindows\n");  return 0; }
-
-int XDisplayWidthMM(Display *dpy, int scr) { printf("CALL XDisplayWidthMM\n");  return 0; }
-
-int XDisplayHeightMM(Display *dpy, int scr) { printf("CALL XDisplayHeightMM\n");  return 0; }
 
 int XBitmapUnit(Display *dpy) { printf("CALL XBitmapUnit\n");  return 0; }
 
