@@ -60,7 +60,7 @@ KeySym *XGetKeyboardMapping(Display *display, KeyCode first_keycode, int count, 
 
     int i;
     for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
-        KeyCode kc = SDLKeycodeToKeySym[i].keycode;
+        KeyCode kc = SDLKeycodeToKeySym[i].keycode & 0xFF;
         if (first_keycode <= kc && kc < first_keycode + count && mapping[kc - display->min_keycode] == NoSymbol) {
             mapping[kc - display->min_keycode] = SDLKeycodeToKeySym[i].keysym;
         }
@@ -81,7 +81,7 @@ KeyCode XKeysymToKeycode(Display *display, KeySym keysym) {
     int i;
     for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
         if (SDLKeycodeToKeySym[i].keysym == keysym) {
-            return SDLKeycodeToKeySym[i].keycode;
+            return SDLKeycodeToKeySym[i].keycode & 0xFF;
         }
     }
     LOG("%s: Got unimplemented keysym %lu\n", __func__, keysym);
@@ -135,7 +135,7 @@ KeySym XKeycodeToKeysym(Display *display, KeyCode keycode, int index) {
     }
     int i;
     for (i = 0; i < SDL_KEYCODE_TO_KEYSYM_LENGTH; i++) {
-        if (SDLKeycodeToKeySym[i].keycode == keycode) {
+        if ((SDLKeycodeToKeySym[i].keycode & 0xFF) == keycode) {
             return SDLKeycodeToKeySym[i].keysym;
         }
     }

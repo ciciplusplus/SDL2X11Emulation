@@ -172,7 +172,8 @@ int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent, Bool fre
             xEvent->xkey.x_root = xEvent->xkey.x; // Because root and window are the same.
             xEvent->xkey.y_root = xEvent->xkey.y;
             xEvent->xkey.state = convertModifierState(sdlEvent->key.keysym.mod);
-            xEvent->xkey.keycode = (unsigned int) sdlEvent->key.keysym.sym;
+            xEvent->xkey.keycode = (unsigned int) sdlEvent->key.keysym.sym & 0xFF;
+            //xEvent->xkey.keycode = (unsigned int) sdlEvent->key.keysym.scancode;
             xEvent->xkey.same_screen = True;
             break;
         case SDL_MOUSEBUTTONDOWN:
@@ -458,35 +459,36 @@ int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent, Bool fre
             return -1;
         case SDL_TEXTINPUT:              /**< Keyboard text input */
             LOG("SDL_TEXTINPUT\n");
-            inputMethodSetCurrentText(sdlEvent->text.text);
-            // Send synthetic key down and up events with keycode = 0
-            type = KeyPress;
-            FILL_STANDARD_VALUES(xkey);
-            xEvent->xkey.root = getWindowFromId(sdlEvent->text.windowID);
-            eventWindow = getKeyboardFocus();
-            eventWindow = eventWindow == None ? xEvent->xkey.root : eventWindow;
-            xEvent->xkey.window = eventWindow;
-            xEvent->xkey.subwindow = None;
-            xEvent->xkey.time = sdlEvent->text.timestamp;
-            SDL_GetMouseState(&xEvent->xkey.x, &xEvent->xkey.y);
-            xEvent->xkey.x_root = xEvent->xkey.x; // Because root and window are the same.
-            xEvent->xkey.y_root = xEvent->xkey.y;
-            xEvent->xkey.state = convertModifierState(SDL_GetModState());
-            xEvent->xkey.keycode = 0;
-            xEvent->xkey.same_screen = True;
-            ENQUEUE_EVENT_IN_PIPE(display);
-            eventWaiting = True;
-            waitingEvent.type = SDL_KEYUP;
-            waitingEvent.key.windowID = sdlEvent->text.windowID;
-            waitingEvent.key.timestamp = sdlEvent->text.timestamp;
-            waitingEvent.key.keysym.mod = SDL_GetModState();
-            // Because Xutf8LookupString is not called for KeyUp events, we need to fill in the keycode here.
-            // TODO: This will not work for UTF-8 characters bigger than one byte 
-            LOG("Enqueuing keyup for char %d = '%c'\n",
-                sdlEvent->text.text[strlen(sdlEvent->text.text) - 1],
-                sdlEvent->text.text[strlen(sdlEvent->text.text) - 1]);
-            waitingEvent.key.keysym.sym = sdlEvent->text.text[strlen(sdlEvent->text.text) - 1];
-            break;
+            return -1;
+//            inputMethodSetCurrentText(sdlEvent->text.text);
+//            // Send synthetic key down and up events with keycode = 0
+//            type = KeyPress;
+//            FILL_STANDARD_VALUES(xkey);
+//            xEvent->xkey.root = getWindowFromId(sdlEvent->text.windowID);
+//            eventWindow = getKeyboardFocus();
+//            eventWindow = eventWindow == None ? xEvent->xkey.root : eventWindow;
+//            xEvent->xkey.window = eventWindow;
+//            xEvent->xkey.subwindow = None;
+//            xEvent->xkey.time = sdlEvent->text.timestamp;
+//            SDL_GetMouseState(&xEvent->xkey.x, &xEvent->xkey.y);
+//            xEvent->xkey.x_root = xEvent->xkey.x; // Because root and window are the same.
+//            xEvent->xkey.y_root = xEvent->xkey.y;
+//            xEvent->xkey.state = convertModifierState(SDL_GetModState());
+//            xEvent->xkey.keycode = 0;
+//            xEvent->xkey.same_screen = True;
+//            ENQUEUE_EVENT_IN_PIPE(display);
+//            eventWaiting = True;
+//            waitingEvent.type = SDL_KEYUP;
+//            waitingEvent.key.windowID = sdlEvent->text.windowID;
+//            waitingEvent.key.timestamp = sdlEvent->text.timestamp;
+//            waitingEvent.key.keysym.mod = SDL_GetModState();
+//            // Because Xutf8LookupString is not called for KeyUp events, we need to fill in the keycode here.
+//            // TODO: This will not work for UTF-8 characters bigger than one byte
+//            LOG("Enqueuing keyup for char %d = '%c'\n",
+//                sdlEvent->text.text[strlen(sdlEvent->text.text) - 1],
+//                sdlEvent->text.text[strlen(sdlEvent->text.text) - 1]);
+//            waitingEvent.key.keysym.sym = sdlEvent->text.text[strlen(sdlEvent->text.text) - 1];
+//            break;
         case SDL_MOUSEWHEEL:             /**< Mouse wheel motion */
             LOG("SDL_MOUSEWHEEL\n");
             return -1;
@@ -865,7 +867,7 @@ Bool enqueueEvent(Display* display, Window eventWindow, void* event) {
 }
 
 int XPutBackEvent(Display *display, XEvent *event) {
-    // TODO: this is wrong as will place event at the back and not head of the queue!
+    // TODO: this is wrong as we place event at the back and not head of the queue!
     return XSendEvent(display, event->xany.window, False, 0, event);
     //return postEvent(display, event->xany.window, event->type);
 //    XEvent *tmpEvent = malloc(sizeof(XEvent));
