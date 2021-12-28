@@ -270,7 +270,8 @@ char* setICValues(XIC inputConnection, va_list arguments, Bool allowSetReadOnly)
                 if (GET_XIC_STRUCT(inputConnection)->inputRect != NULL) {
                     SDL_SetTextInputRect(GET_XIC_STRUCT(inputConnection)->inputRect);
                 }
-                SDL_StartTextInput();
+                // FIXME: cf. comment in XSelectInput
+                SDL_StopTextInput();
             } else {
                 // TODO
             }

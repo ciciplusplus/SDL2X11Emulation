@@ -155,10 +155,10 @@ int convertEvent(Display* display, SDL_Event* sdlEvent, XEvent* xEvent, Bool fre
     switch (sdlEvent->type) {
         case SDL_KEYDOWN:
             type = KeyPress;
-            LOG("SDL_KEYDOWN\n");
+            LOG("SDL_KEYDOWN for winId %d\n", sdlEvent->key.windowID);
         case SDL_KEYUP:
             if (sdlEvent->type == SDL_KEYUP) {
-                LOG("SDL_KEYUP\n");
+                LOG("SDL_KEYUP for winId %d\n", sdlEvent->key.windowID);
                 type = KeyRelease;
             }
             FILL_STANDARD_VALUES(xkey);
@@ -909,6 +909,10 @@ Status XSendEvent(Display* display, Window window, Bool propagate, long event_ma
 
 Bool XFilterEvent(XEvent *event, Window w) {
     // http://www.x.org/archive/X11R7.6/doc/man/man3/XFilterEvent.3.xhtml
+    if (event->type == KeyPress || event->type == KeyRelease) {
+        // filter event if there is no keyboard focus
+        return getKeyboardFocus() == None;
+    }
     // We don't get an event from sdl, if an IM gets it before us.
     return False;
 }

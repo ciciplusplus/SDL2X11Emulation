@@ -6,6 +6,7 @@
 #include "events.h"
 #include "display.h"
 #include "visual.h"
+#include "input.h"
 
 // TODO: Cover cases where top-level window is re-parented and window is converted to top-level window
 
@@ -167,6 +168,9 @@ int XMapWindow(Display* display, Window window) {
         Uint32 flags = SDL_WINDOW_SHOWN;
         if (windowStruct->borderWidth == 0) {
             flags |= SDL_WINDOW_BORDERLESS;
+        }
+        if (windowStruct->eventMask & KeyPressMask || windowStruct->eventMask & KeyReleaseMask) {
+            flags |= SDL_WINDOW_INPUT_FOCUS;
         }
         SDL_Window* sdlWindow = SDL_CreateWindow(windowStruct->windowName,
                                                  windowStruct->x, windowStruct->y,
@@ -820,10 +824,16 @@ int XChangeWindowAttributes(Display* display, Window window, unsigned long value
             LOG("Change window attributes event: %ld\n",
                 attributes->event_mask & SubstructureRedirectMask);
             GET_WINDOW_STRUCT(window)->eventMask = attributes->event_mask;
-            if (attributes->event_mask & KeyPressMask || attributes->event_mask & KeyReleaseMask) {
-                // TODO: Implement real system here
-                if (!SDL_IsTextInputActive()) {
-                    SDL_StartTextInput();
+            // TODO: it's ok to only care about top level windows here?
+            if (IS_TOP_LEVEL(window)) {
+                if (attributes->event_mask & KeyPressMask || attributes->event_mask & KeyReleaseMask) {
+                        // TODO: Implement real system here
+//                        if (!SDL_IsTextInputActive()) {
+//                            SDL_StartTextInput();
+//                        }
+                        // FIXME: cf. comment in XSelectInput
+                        SDL_StopTextInput();
+                        setKeyboardFocus(window);
                 }
             }
         }

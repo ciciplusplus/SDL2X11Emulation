@@ -10,8 +10,13 @@ Window keyboardFocus = None;
 int revertTo = RevertToParent;
         
 Window getKeyboardFocus() {
-    LOG("keyboard focus is %lu\n", keyboardFocus);
+    LOG("GET keyboard focus is %lu\n", keyboardFocus);
     return keyboardFocus;
+}
+
+void setKeyboardFocus(Window window) {
+    LOG("SET keyboard focus is %lu\n", window);
+    keyboardFocus = window;
 }
 
 int XSelectInput(Display* display, Window window, long event_mask) {
@@ -20,10 +25,15 @@ int XSelectInput(Display* display, Window window, long event_mask) {
     LOG("%s: %ld, %ld\n", __func__, event_mask & KeyPressMask, event_mask & KeyReleaseMask);
     if (event_mask & KeyPressMask || event_mask & KeyReleaseMask) {
         // TODO: Implement real system here
-        if (!SDL_IsTextInputActive()) {
-            SDL_StartTextInput();
-        }
-        keyboardFocus = window;
+//        if (!SDL_IsTextInputActive()) {
+//            SDL_StartTextInput();
+//        }
+        /* FIXME: for some reasons notepad would register 2 key press events:
+         * one for SDL_KEYDOWN and one for SDL_TEXTINPUT
+         * Hacky solution: not enabling text input!
+         */
+        SDL_StopTextInput();
+        setKeyboardFocus(window);
     }
     return 1;
 }
@@ -146,7 +156,8 @@ KeySym XKeycodeToKeysym(Display *display, KeyCode keycode, int index) {
 int XLookupString(XKeyEvent* event_struct, char* buffer_return, int bytes_buffer,
                   KeySym* keysym_return, XComposeStatus *status_in_out) {
     // https://tronche.com/gui/x/xlib/utilities/XLookupString.html
-    *buffer_return = event_struct->keycode;
+    if (buffer_return != NULL)
+        *buffer_return = event_struct->keycode;
     if (keysym_return != NULL)
         *keysym_return = XKeycodeToKeysym(event_struct->display, event_struct->keycode, 0);
     return 1;
