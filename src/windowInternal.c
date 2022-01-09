@@ -327,6 +327,8 @@ Bool configureWindow(Display* display, Window window, unsigned long value_mask, 
         if (HAS_VALUE(value_mask, CWY)) {
             y = values->y;
         }
+        x = 0;
+        y = 0;
         if (isMappedTopLevelWindow) {
             SDL_SetWindowPosition(windowStruct->sdlWindow, x, y);
             SDL_GetWindowPosition(windowStruct->sdlWindow, &windowStruct->x, &windowStruct->y);
